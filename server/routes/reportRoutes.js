@@ -36,6 +36,9 @@ router.post(
         image: req.file ? req.file.filename : "",
 
         status: "Pending",
+
+        // No resolution note when a report is first created
+        resolutionNote: "",
       });
 
       console.log("Before Save:", report);
@@ -232,7 +235,7 @@ router.get("/:id", protect, async (req, res) => {
 });
 
 // =====================================================
-// UPDATE REPORT STATUS
+// UPDATE REPORT STATUS + RESOLUTION NOTE
 // ADMIN ONLY
 // =====================================================
 router.put(
@@ -241,14 +244,16 @@ router.put(
   adminMiddleware,
   async (req, res) => {
     try {
-      const { status } = req.body;
+      const { status, resolutionNote } = req.body;
 
+      // Allowed statuses
       const allowedStatuses = [
         "Pending",
         "In Progress",
         "Resolved",
       ];
 
+      // Validate status
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({
           success: false,
@@ -256,18 +261,46 @@ router.put(
         });
       }
 
+      // =================================================
+      // RESOLVED REPORT MUST HAVE A RESOLUTION NOTE
+      // =================================================
+      if (
+        status === "Resolved" &&
+        (!resolutionNote || !resolutionNote.trim())
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Please provide a resolution note before resolving the report.",
+        });
+      }
+
+      // =================================================
+      // PREPARE UPDATE DATA
+      // =================================================
+      const updateData = {
+        status,
+      };
+
+      // Save resolution note when provided
+      if (resolutionNote !== undefined) {
+        updateData.resolutionNote = resolutionNote.trim();
+      }
+
+      // =================================================
+      // UPDATE REPORT
+      // =================================================
       const updatedReport =
         await Report.findByIdAndUpdate(
           req.params.id,
-          {
-            status,
-          },
+          updateData,
           {
             new: true,
             runValidators: true,
           }
         );
 
+      // Report not found
       if (!updatedReport) {
         return res.status(404).json({
           success: false,
@@ -275,6 +308,9 @@ router.put(
         });
       }
 
+      // =================================================
+      // SUCCESS RESPONSE
+      // =================================================
       res.json({
         success: true,
         message: "Report status updated successfully",

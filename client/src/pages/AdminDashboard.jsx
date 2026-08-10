@@ -1,17 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
-import Analytics from "../components/admin/Analytics";
-import MapComponent from "../components/MapComponent";
-import ReportDetailsModal from "../components/admin/ReportDetailsModal";
 
 function AdminDashboard() {
-  const navigate = useNavigate();
-
   const [reports, setReports] = useState([]);
-  const [selectedReport, setSelectedReport] = useState(null);
-
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -20,696 +11,674 @@ function AdminDashboard() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [resolutionNote, setResolutionNote] = useState("");
 
-  // Search & Filters
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [damageFilter, setDamageFilter] = useState("All");
-  const [locationFilter, setLocationFilter] = useState("");
+  // =====================================================
+  // FIXED RESOLUTION NOTES
+  // =====================================================
+  const resolutionNotes = {
+    Pothole:
+      "Pothole repaired and the damaged road surface has been restored.",
 
-  // ==========================================
-  // AUTH CONFIG
-  // ==========================================
-  const getAuthConfig = () => {
-    const token = localStorage.getItem("token");
+    "Road Crack":
+      "Road cracks repaired and the affected road surface has been restored.",
 
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    "Broken Road":
+      "Damaged road section repaired and the road surface has been restored.",
+
+    "Water Logging":
+      "Water logging issue addressed and the affected drainage area has been cleared.",
+
+    "Street Light Damage":
+      "Damaged street light repaired and normal lighting service has been restored.",
   };
 
-  // ==========================================
-  // HANDLE AUTH ERROR
-  // ==========================================
-  const handleAuthError = (error) => {
-    console.error("Admin authentication error:", error);
-
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      alert("Your session has expired. Please login again.");
-
-      navigate("/login");
-      return true;
-    }
-
-    if (error.response?.status === 403) {
-      alert("Admin access required.");
-      navigate("/");
-      return true;
-    }
-
-    return false;
-  };
-
-  // ==========================================
-  // FETCH REPORTS + STATISTICS
-  // ==========================================
+  // =====================================================
+  // GET REPORTS + STATS
+  // =====================================================
   useEffect(() => {
     fetchReports();
+    fetchStats();
   }, []);
+
+  const getToken = () => {
+    return localStorage.getItem("token");
+  };
 
   const fetchReports = async () => {
     try {
-      setLoading(true);
+      const token = getToken();
 
-      const token = localStorage.getItem("token");
-
-      // No token
-      if (!token) {
-        alert("Please login as an administrator.");
-        navigate("/login");
-        return;
-      }
-
-      const config = getAuthConfig();
-
-      /*
-       IMPORTANT:
-       Both requests now receive the Authorization token.
-      */
-      const [reportsRes, statsRes] = await Promise.all([
-        axios.get(
-          "http://localhost:5000/api/reports",
-          config
-        ),
-
-        axios.get(
-          "http://localhost:5000/api/reports/stats",
-          config
-        ),
-      ]);
-
-      // ==========================================
-      // REPORTS
-      // ==========================================
-      const reportsData = reportsRes.data?.reports || [];
-
-      setReports(reportsData);
-
-      // ==========================================
-      // STATISTICS
-      // ==========================================
-      setStats({
-        total: statsRes.data?.total || 0,
-        pending: statsRes.data?.pending || 0,
-        inProgress: statsRes.data?.inProgress || 0,
-        resolved: statsRes.data?.resolved || 0,
-      });
-
-    } catch (error) {
-      console.error(
-        "Error fetching admin dashboard:",
-        error
+      const response = await axios.get(
+        "http://localhost:5000/api/reports",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      const authError = handleAuthError(error);
+      setReports(response.data.reports || []);
+    } catch (error) {
+      console.error("Failed to load reports:", error);
 
-      if (!authError) {
-        alert(
-          error.response?.data?.message ||
-            "Failed to load admin dashboard."
-        );
+      if (error.response?.status === 401) {
+        alert("Session expired. Please login again.");
+      } else if (error.response?.status === 403) {
+        alert("You are not authorized to access the Admin Dashboard.");
+      } else {
+        alert("Failed to load reports.");
       }
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const token = getToken();
+
+      const response = await axios.get(
+        "http://localhost:5000/api/reports/stats",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setStats({
+        total: response.data.total || 0,
+        pending: response.data.pending || 0,
+        inProgress: response.data.inProgress || 0,
+        resolved: response.data.resolved || 0,
+      });
+    } catch (error) {
+      console.error("Failed to load statistics:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // ==========================================
-  // UPDATE REPORT STATUS
-  // ==========================================
-  const updateStatus = async (id, status) => {
-    try {
-      const token = localStorage.getItem("token");
+  // =====================================================
+  // OPEN STATUS UPDATE
+  // =====================================================
+  const openStatusUpdate = (report) => {
+    setSelectedReport(report);
+    setSelectedStatus(report.status || "Pending");
 
-      if (!token) {
-        alert("Please login again.");
-        navigate("/login");
-        return;
-      }
-
-      const config = getAuthConfig();
-
-      await axios.put(
-        `http://localhost:5000/api/reports/${id}`,
-        {
-          status,
-        },
-        config
+    // If already resolved, show its saved note.
+    // Otherwise automatically prepare the fixed note.
+    if (report.status === "Resolved") {
+      setResolutionNote(
+        report.resolutionNote ||
+          resolutionNotes[report.damageType] ||
+          ""
       );
-
-      alert("Status Updated Successfully");
-
-      // Reload reports and statistics
-      await fetchReports();
-
-    } catch (error) {
-      console.error(
-        "Error updating report status:",
-        error
-      );
-
-      const authError = handleAuthError(error);
-
-      if (!authError) {
-        alert(
-          error.response?.data?.message ||
-            "Failed to update status."
-        );
-      }
+    } else {
+      setResolutionNote("");
     }
   };
 
-  // ==========================================
-  // DELETE REPORT
-  // ==========================================
-  const deleteReport = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this report?"
-    );
+  // =====================================================
+  // STATUS CHANGE
+  // =====================================================
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value;
 
-    if (!confirmed) {
+    setSelectedStatus(newStatus);
+
+    if (newStatus === "Resolved") {
+      const fixedNote =
+        resolutionNotes[selectedReport?.damageType] ||
+        "Road damage has been repaired and the affected area has been restored.";
+
+      setResolutionNote(fixedNote);
+    } else {
+      setResolutionNote("");
+    }
+  };
+
+  // =====================================================
+  // UPDATE REPORT
+  // =====================================================
+  const updateStatus = async () => {
+    if (!selectedReport) return;
+
+    if (!selectedStatus) {
+      alert("Please select a status.");
+      return;
+    }
+
+    // Resolution requires a note
+    if (
+      selectedStatus === "Resolved" &&
+      !resolutionNote.trim()
+    ) {
+      alert("Resolution note is required.");
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
+      const token = getToken();
 
-      if (!token) {
-        alert("Please login again.");
-        navigate("/login");
-        return;
-      }
-
-      const config = getAuthConfig();
-
-      await axios.delete(
-        `http://localhost:5000/api/reports/${id}`,
-        config
+      const response = await axios.put(
+        `http://localhost:5000/api/reports/${selectedReport._id}`,
+        {
+          status: selectedStatus,
+          resolutionNote:
+            selectedStatus === "Resolved"
+              ? resolutionNote
+              : "",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
-      alert("Report Deleted Successfully");
+      alert(
+        response.data.message ||
+          "Report status updated successfully."
+      );
 
-      // Close modal if deleted report was open
-      if (selectedReport?._id === id) {
-        setSelectedReport(null);
-      }
+      // Close modal
+      setSelectedReport(null);
+      setSelectedStatus("");
+      setResolutionNote("");
 
       // Reload reports and statistics
       await fetchReports();
-
+      await fetchStats();
     } catch (error) {
-      console.error(
-        "Error deleting report:",
-        error
+      console.error("Failed to update status:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to update report status."
       );
-
-      const authError = handleAuthError(error);
-
-      if (!authError) {
-        alert(
-          error.response?.data?.message ||
-            "Failed to delete report."
-        );
-      }
     }
   };
 
-  // ==========================================
-  // FILTER REPORTS
-  // ==========================================
-  const filteredReports = reports.filter((report) => {
-    const reportName = report.name || "";
-    const reportLocation = report.location || "";
-    const reportDamageType = report.damageType || "";
-
-    const matchesSearch = reportName
-      .toLowerCase()
-      .includes(search.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === "All" ||
-      report.status === statusFilter;
-
-    const matchesDamage =
-      damageFilter === "All" ||
-      reportDamageType === damageFilter;
-
-    const matchesLocation = reportLocation
-      .toLowerCase()
-      .includes(locationFilter.toLowerCase());
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesDamage &&
-      matchesLocation
+  // =====================================================
+  // DELETE REPORT
+  // =====================================================
+  const deleteReport = async (reportId) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this report?"
     );
-  });
 
-  // ==========================================
+    if (!confirmed) return;
+
+    try {
+      const token = getToken();
+
+      const response = await axios.delete(
+        `http://localhost:5000/api/reports/${reportId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert(
+        response.data.message ||
+          "Report deleted successfully."
+      );
+
+      await fetchReports();
+      await fetchStats();
+    } catch (error) {
+      console.error("Failed to delete report:", error);
+
+      alert(
+        error.response?.data?.message ||
+          "Failed to delete report."
+      );
+    }
+  };
+
+  // =====================================================
+  // STATUS STYLE
+  // =====================================================
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Resolved":
+        return "bg-green-100 text-green-700";
+
+      case "In Progress":
+        return "bg-blue-100 text-blue-700";
+
+      case "Pending":
+      default:
+        return "bg-yellow-100 text-yellow-700";
+    }
+  };
+
+  // =====================================================
   // LOADING
-  // ==========================================
+  // =====================================================
   if (loading) {
     return (
-      <section className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-5xl mb-4">
-            ⏳
+      <section className="min-h-screen bg-gray-100 py-10 px-4">
+        <div className="max-w-7xl mx-auto flex justify-center items-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="text-4xl mb-4">⏳</div>
+
+            <p className="text-xl font-semibold text-gray-700">
+              Loading Admin Dashboard...
+            </p>
           </div>
-
-          <h2 className="text-2xl font-bold text-blue-700">
-            Loading Admin Dashboard...
-          </h2>
-
-          <p className="text-gray-500 mt-2">
-            Fetching reports and statistics.
-          </p>
         </div>
       </section>
     );
   }
 
-  // ==========================================
-  // PAGE
-  // ==========================================
   return (
-    <section className="bg-gray-100 min-h-screen py-10">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="max-w-7xl mx-auto">
 
-        {/* =====================================
-            PAGE TITLE
-        ====================================== */}
-        <h1 className="text-4xl font-bold text-center text-blue-700 mb-8">
-          Admin Dashboard
-        </h1>
+        {/* =================================================
+            HEADER
+        ================================================= */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-blue-700">
+            Admin Dashboard
+          </h1>
 
-        {/* =====================================
+          <p className="text-gray-600 mt-2">
+            Manage road damage reports and update their status.
+          </p>
+        </div>
+
+        {/* =================================================
             STATISTICS
-        ====================================== */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+        ================================================= */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
-          {/* TOTAL */}
-          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
-            <div className="text-3xl mb-2">
-              📋
+          {/* Total */}
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 font-medium">
+                  Total Reports
+                </p>
+
+                <p className="text-3xl font-bold text-blue-700 mt-2">
+                  {stats.total}
+                </p>
+              </div>
+
+              <div className="text-3xl">
+                📋
+              </div>
             </div>
-
-            <h3 className="text-gray-500 font-semibold">
-              Total Reports
-            </h3>
-
-            <p className="text-4xl font-bold text-blue-700 mt-2">
-              {stats.total}
-            </p>
           </div>
 
-          {/* PENDING */}
-          <div className="bg-yellow-100 rounded-xl shadow-lg p-6 text-center">
-            <div className="text-3xl mb-2">
-              🟡
+          {/* Pending */}
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 font-medium">
+                  Pending
+                </p>
+
+                <p className="text-3xl font-bold text-yellow-600 mt-2">
+                  {stats.pending}
+                </p>
+              </div>
+
+              <div className="text-3xl">
+                🟡
+              </div>
             </div>
-
-            <h3 className="text-yellow-700 font-semibold">
-              Pending
-            </h3>
-
-            <p className="text-4xl font-bold text-yellow-700 mt-2">
-              {stats.pending}
-            </p>
           </div>
 
-          {/* IN PROGRESS */}
-          <div className="bg-blue-100 rounded-xl shadow-lg p-6 text-center">
-            <div className="text-3xl mb-2">
-              🔵
+          {/* In Progress */}
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 font-medium">
+                  In Progress
+                </p>
+
+                <p className="text-3xl font-bold text-blue-600 mt-2">
+                  {stats.inProgress}
+                </p>
+              </div>
+
+              <div className="text-3xl">
+                🔵
+              </div>
             </div>
-
-            <h3 className="text-blue-700 font-semibold">
-              In Progress
-            </h3>
-
-            <p className="text-4xl font-bold text-blue-700 mt-2">
-              {stats.inProgress}
-            </p>
           </div>
 
-          {/* RESOLVED */}
-          <div className="bg-green-100 rounded-xl shadow-lg p-6 text-center">
-            <div className="text-3xl mb-2">
-              🟢
+          {/* Resolved */}
+          <div className="bg-white rounded-xl shadow-md p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-500 font-medium">
+                  Resolved
+                </p>
+
+                <p className="text-3xl font-bold text-green-600 mt-2">
+                  {stats.resolved}
+                </p>
+              </div>
+
+              <div className="text-3xl">
+                🟢
+              </div>
             </div>
-
-            <h3 className="text-green-700 font-semibold">
-              Resolved
-            </h3>
-
-            <p className="text-4xl font-bold text-green-700 mt-2">
-              {stats.resolved}
-            </p>
-          </div>
-
-        </div>
-
-        {/* =====================================
-            ANALYTICS
-        ====================================== */}
-        <Analytics stats={stats} />
-
-        {/* =====================================
-            LIVE MAP
-        ====================================== */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-10">
-
-          <h2 className="text-2xl font-bold text-blue-700 mb-6">
-            🗺️ Live Road Damage Map
-          </h2>
-
-          <MapComponent />
-
-        </div>
-
-        {/* =====================================
-            SEARCH & FILTERS
-        ====================================== */}
-        <div className="bg-white rounded-xl shadow-lg p-6 my-8">
-
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
-            Search & Filter Reports
-          </h2>
-
-          <div className="grid md:grid-cols-4 gap-4">
-
-            {/* SEARCH NAME */}
-            <input
-              type="text"
-              placeholder="🔍 Search by Name"
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
-            {/* STATUS */}
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(e.target.value)
-              }
-              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="All">
-                All Status
-              </option>
-
-              <option value="Pending">
-                Pending
-              </option>
-
-              <option value="In Progress">
-                In Progress
-              </option>
-
-              <option value="Resolved">
-                Resolved
-              </option>
-            </select>
-
-            {/* DAMAGE TYPE */}
-            <select
-              value={damageFilter}
-              onChange={(e) =>
-                setDamageFilter(e.target.value)
-              }
-              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="All">
-                All Damage Types
-              </option>
-
-              <option value="Pothole">
-                Pothole
-              </option>
-
-              <option value="Road Crack">
-                Road Crack
-              </option>
-
-              <option value="Broken Road">
-                Broken Road
-              </option>
-
-              <option value="Water Logging">
-                Water Logging
-              </option>
-
-              <option value="Street Light Damage">
-                Street Light Damage
-              </option>
-            </select>
-
-            {/* LOCATION */}
-            <input
-              type="text"
-              placeholder="📍 Search Location"
-              value={locationFilter}
-              onChange={(e) =>
-                setLocationFilter(e.target.value)
-              }
-              className="border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-
           </div>
         </div>
 
-        {/* =====================================
-            REPORT COUNT
-        ====================================== */}
-        <div className="mb-4 text-gray-600">
-          Showing{" "}
-          <strong>
-            {filteredReports.length}
-          </strong>{" "}
-          of{" "}
-          <strong>
-            {reports.length}
-          </strong>{" "}
-          reports
-        </div>
+        {/* =================================================
+            REPORTS
+        ================================================= */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
 
-        {/* =====================================
-            REPORTS TABLE
-        ====================================== */}
-        <div className="overflow-x-auto bg-white rounded-xl shadow-lg">
+          <div className="p-6 border-b">
+            <h2 className="text-2xl font-bold text-gray-800">
+              All Reports
+            </h2>
 
-          <table className="w-full">
+            <p className="text-gray-500 mt-1">
+              Review and manage submitted road damage reports.
+            </p>
+          </div>
 
-            <thead className="bg-blue-700 text-white">
+          {reports.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-5xl mb-4">
+                📭
+              </div>
 
-              <tr>
+              <h3 className="text-xl font-semibold text-gray-700">
+                No Reports Found
+              </h3>
 
-                <th className="p-4">
-                  Image
-                </th>
+              <p className="text-gray-500 mt-2">
+                There are currently no road damage reports.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y">
 
-                <th className="p-4">
-                  Name
-                </th>
-
-                <th className="p-4">
-                  Location
-                </th>
-
-                <th className="p-4">
-                  Damage
-                </th>
-
-                <th className="p-4">
-                  Status
-                </th>
-
-                <th className="p-4">
-                  Date
-                </th>
-
-                <th className="p-4">
-                  Actions
-                </th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              {filteredReports.map((report) => (
-
-                <tr
+              {reports.map((report) => (
+                <div
                   key={report._id}
-                  className="border-b hover:bg-gray-50 text-center"
+                  className="p-6 hover:bg-gray-50 transition"
                 >
 
-                  {/* IMAGE */}
-                  <td className="p-4">
+                  <div className="flex flex-col lg:flex-row gap-6">
 
-                    {report.image ? (
+                    {/* IMAGE */}
+                    <div className="w-full lg:w-64 flex-shrink-0">
+                      {report.image ? (
+                        <img
+                          src={`http://localhost:5000/uploads/${report.image}`}
+                          alt="Road Damage"
+                          className="w-full h-44 object-cover rounded-xl"
+                        />
+                      ) : (
+                        <div className="w-full h-44 rounded-xl bg-gray-100 flex items-center justify-center">
+                          <div className="text-center text-gray-400">
+                            <div className="text-4xl mb-2">
+                              🛣️
+                            </div>
 
-                      <img
-                        src={`http://localhost:5000/uploads/${report.image}`}
-                        alt="Road Damage"
-                        className="w-24 h-20 object-cover rounded-lg border mx-auto"
-                      />
-
-                    ) : (
-
-                      <span className="text-gray-400">
-                        No Image
-                      </span>
-
-                    )}
-
-                  </td>
-
-                  {/* NAME */}
-                  <td className="p-4 font-medium">
-                    {report.name || "N/A"}
-                  </td>
-
-                  {/* LOCATION */}
-                  <td className="p-4">
-                    {report.location || "N/A"}
-                  </td>
-
-                  {/* DAMAGE */}
-                  <td className="p-4">
-                    {report.damageType || "N/A"}
-                  </td>
-
-                  {/* STATUS */}
-                  <td className="p-4">
-
-                    <select
-                      value={
-                        report.status || "Pending"
-                      }
-                      onChange={(e) =>
-                        updateStatus(
-                          report._id,
-                          e.target.value
-                        )
-                      }
-                      className="border rounded-lg px-3 py-2"
-                    >
-
-                      <option value="Pending">
-                        Pending
-                      </option>
-
-                      <option value="In Progress">
-                        In Progress
-                      </option>
-
-                      <option value="Resolved">
-                        Resolved
-                      </option>
-
-                    </select>
-
-                  </td>
-
-                  {/* DATE */}
-                  <td className="p-4">
-
-                    {report.createdAt
-                      ? new Date(
-                          report.createdAt
-                        ).toLocaleDateString()
-                      : "N/A"}
-
-                  </td>
-
-                  {/* ACTIONS */}
-                  <td className="p-4">
-
-                    <div className="flex flex-col gap-2 items-center">
-
-                      <button
-                        onClick={() =>
-                          setSelectedReport(report)
-                        }
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-                      >
-                        View
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          deleteReport(report._id)
-                        }
-                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-                      >
-                        Delete
-                      </button>
-
+                            <p className="text-sm">
+                              No image
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                  </td>
+                    {/* CONTENT */}
+                    <div className="flex-1">
 
-                </tr>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
 
+                        <div>
+                          <h3 className="text-xl font-bold text-blue-700">
+                            {report.damageType}
+                          </h3>
+
+                          <p className="text-gray-600 mt-1">
+                            📍 {report.location}
+                          </p>
+                        </div>
+
+                        <span
+                          className={`w-fit px-4 py-2 rounded-full font-semibold text-sm ${getStatusStyle(
+                            report.status
+                          )}`}
+                        >
+                          {report.status || "Pending"}
+                        </span>
+                      </div>
+
+                      {/* DETAILS */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Reporter
+                          </p>
+
+                          <p className="font-semibold text-gray-800">
+                            {report.name}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Phone
+                          </p>
+
+                          <p className="font-semibold text-gray-800">
+                            {report.phone}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Submitted
+                          </p>
+
+                          <p className="font-semibold text-gray-800">
+                            {report.createdAt
+                              ? new Date(
+                                  report.createdAt
+                                ).toLocaleString()
+                              : "N/A"}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Coordinates
+                          </p>
+
+                          <p className="font-semibold text-gray-800">
+                            {report.latitude},{" "}
+                            {report.longitude}
+                          </p>
+                        </div>
+
+                      </div>
+
+                      {/* DESCRIPTION */}
+                      <div className="mt-5">
+                        <p className="text-sm text-gray-500 mb-1">
+                          Description
+                        </p>
+
+                        <p className="text-gray-700">
+                          {report.description}
+                        </p>
+                      </div>
+
+                      {/* RESOLUTION NOTE */}
+                      {report.status === "Resolved" &&
+                        report.resolutionNote && (
+                          <div className="mt-5 bg-green-50 border border-green-200 rounded-xl p-4">
+                            <p className="text-sm font-semibold text-green-700 mb-1">
+                              Resolution Note
+                            </p>
+
+                            <p className="text-green-800">
+                              {report.resolutionNote}
+                            </p>
+                          </div>
+                        )}
+
+                      {/* ACTIONS */}
+                      <div className="flex flex-col sm:flex-row gap-3 mt-6">
+
+                        <button
+                          onClick={() =>
+                            openStatusUpdate(report)
+                          }
+                          className="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2.5 rounded-lg font-semibold transition"
+                        >
+                          Update Status
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            deleteReport(report._id)
+                          }
+                          className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold transition"
+                        >
+                          Delete
+                        </button>
+
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
               ))}
 
-              {/* NO REPORTS */}
-              {filteredReports.length === 0 && (
-
-                <tr>
-
-                  <td
-                    colSpan="7"
-                    className="text-center p-10 text-gray-500"
-                  >
-
-                    <div className="text-4xl mb-3">
-                      📭
-                    </div>
-
-                    <p className="text-lg font-semibold">
-                      No reports found.
-                    </p>
-
-                    <p className="text-sm mt-1">
-                      Try changing your search or filters.
-                    </p>
-
-                  </td>
-
-                </tr>
-
-              )}
-
-            </tbody>
-
-          </table>
-
+            </div>
+          )}
         </div>
-
       </div>
 
-      {/* =====================================
-          REPORT DETAILS MODAL
-      ====================================== */}
-      <ReportDetailsModal
-        report={selectedReport}
-        onClose={() =>
-          setSelectedReport(null)
-        }
-      />
+      {/* ===================================================
+          UPDATE STATUS MODAL
+      =================================================== */}
+      {selectedReport && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center px-4">
 
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl p-6">
+
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-6">
+
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Update Report
+                </h2>
+
+                <p className="text-gray-500 mt-1">
+                  {selectedReport.damageType}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedReport(null);
+                  setResolutionNote("");
+                }}
+                className="text-gray-400 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Status */}
+            <div className="mb-5">
+
+              <label className="block font-semibold text-gray-700 mb-2">
+                Report Status
+              </label>
+
+              <select
+                value={selectedStatus}
+                onChange={handleStatusChange}
+                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="Pending">
+                  Pending
+                </option>
+
+                <option value="In Progress">
+                  In Progress
+                </option>
+
+                <option value="Resolved">
+                  Resolved
+                </option>
+              </select>
+            </div>
+
+            {/* Resolution Note */}
+            {selectedStatus === "Resolved" && (
+              <div className="mb-5">
+
+                <label className="block font-semibold text-gray-700 mb-2">
+                  Resolution Note
+                </label>
+
+                <textarea
+                  value={resolutionNote}
+                  readOnly
+                  rows="4"
+                  className="w-full border border-green-300 bg-green-50 text-green-800 rounded-xl px-4 py-3 focus:outline-none resize-none"
+                />
+
+                <p className="text-xs text-gray-500 mt-2">
+                  This note is automatically generated based on the damage type.
+                </p>
+
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedReport(null);
+                  setSelectedStatus("");
+                  setResolutionNote("");
+                }}
+                className="flex-1 border border-gray-300 hover:bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={updateStatus}
+                className="flex-1 bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-xl font-semibold transition"
+              >
+                Update Status
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
     </section>
   );
 }

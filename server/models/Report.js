@@ -24,13 +24,11 @@ const reportSchema = new mongoose.Schema(
       required: true,
     },
 
-    // NEW
     latitude: {
       type: Number,
       default: null,
     },
 
-    // NEW
     longitude: {
       type: Number,
       default: null,
@@ -51,9 +49,16 @@ const reportSchema = new mongoose.Schema(
       default: "",
     },
 
+    // Report status
     status: {
       type: String,
       default: "Pending",
+    },
+
+    // Admin note added when resolving/rejecting a report
+    resolutionNote: {
+      type: String,
+      default: "",
     },
   },
   {
