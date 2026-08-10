@@ -33,7 +33,6 @@ function ReportDamage() {
         const longitude = position.coords.longitude;
 
         try {
-          // Reverse Geocoding using OpenStreetMap
           const response = await axios.get(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
@@ -65,8 +64,6 @@ function ReportDamage() {
             longitude,
             location: address,
           }));
-
-          console.log("Detected Address:", address);
         } catch (error) {
           console.error("Reverse geocoding failed:", error);
 
@@ -142,7 +139,6 @@ function ReportDamage() {
 
       alert(response.data.message);
 
-      // Keep detected location after submit
       setFormData((prev) => ({
         ...prev,
         name: "",
@@ -162,122 +158,220 @@ function ReportDamage() {
   };
 
   return (
-    <section className="min-h-screen bg-gray-100 py-12">
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-8">
+    <section className="min-h-screen bg-gray-100 py-8 px-4">
 
-        <h1 className="text-4xl font-bold text-center text-blue-700 mb-8">
-          Report Road Damage
-        </h1>
+      {/* Main Card */}
+      <div className="mx-auto w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Header */}
+        <div className="px-6 py-5 border-b border-gray-200">
+          <h1 className="text-3xl font-bold text-center text-blue-700">
+            Report Road Damage
+          </h1>
 
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-            required
-          />
+          <p className="text-center text-gray-500 text-sm mt-1">
+            Help us identify and fix road problems in your area.
+          </p>
+        </div>
 
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-            required
-          />
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="px-6 py-6 space-y-4"
+        >
 
-          <input
-            type="text"
-            name="location"
-            placeholder="Location"
-            value={formData.location}
-            readOnly
-            className="w-full border rounded-lg p-3 bg-gray-100"
-          />
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Full Name
+            </label>
 
-          <select
-            name="damageType"
-            value={formData.damageType}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-          >
-            <option>Pothole</option>
-            <option>Road Crack</option>
-            <option>Broken Road</option>
-            <option>Water Logging</option>
-            <option>Street Light Damage</option>
-          </select>
+            <input
+              type="text"
+              name="name"
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              required
+            />
+          </div>
 
-          <textarea
-            name="description"
-            rows="5"
-            placeholder="Describe the damage"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full border rounded-lg p-3"
-            required
-          />
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Phone Number
+            </label>
 
-          <input
-            type="file"
-            name="image"
-            accept="image/*"
-            onChange={handleChange}
-            className="w-full"
-          />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Enter your phone number"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              required
+            />
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Detected Location
+            </label>
+
+            <input
+              type="text"
+              name="location"
+              value={
+                loadingLocation
+                  ? "Detecting your location..."
+                  : formData.location
+              }
+              readOnly
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-gray-50 text-gray-700"
+            />
+          </div>
+
+          {/* Damage Type */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Damage Type
+            </label>
+
+            <select
+              name="damageType"
+              value={formData.damageType}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            >
+              <option>Pothole</option>
+              <option>Road Crack</option>
+              <option>Broken Road</option>
+              <option>Water Logging</option>
+              <option>Street Light Damage</option>
+            </select>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Description
+            </label>
+
+            <textarea
+              name="description"
+              rows="3"
+              placeholder="Describe the road damage..."
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              required
+            />
+          </div>
+
+          {/* Image */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Upload Image
+            </label>
+
+            <div className="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50">
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+                className="w-full text-sm text-gray-600"
+              />
+
+              <p className="text-xs text-gray-400 mt-1">
+                Upload a clear photo of the damaged road.
+              </p>
+            </div>
+          </div>
 
           {/* GPS Status */}
-          <div className="bg-blue-50 rounded-lg p-4">
+          <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3">
 
             {loadingLocation ? (
-              <p className="text-blue-700 font-semibold">
-                📍 Detecting your location...
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="animate-pulse text-blue-600">
+                  📍
+                </span>
+
+                <p className="text-sm font-semibold text-blue-700">
+                  Detecting your location...
+                </p>
+              </div>
             ) : (
               <>
-                <p className="text-blue-700">
-                  <strong>Latitude:</strong> {formData.latitude}
-                </p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-blue-800">
+                    📍 Location Detected
+                  </p>
 
-                <p className="text-blue-700">
-                  <strong>Longitude:</strong> {formData.longitude}
-                </p>
+                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
+                    Ready
+                  </span>
+                </div>
 
-                <p className="text-green-700 mt-2">
-                  <strong>Detected Address:</strong>
-                  <br />
-                  {formData.location}
-                </p>
+                <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
+                  <div>
+                    <span className="font-semibold">
+                      Latitude
+                    </span>
+
+                    <p className="mt-1 text-gray-800">
+                      {formData.latitude}
+                    </p>
+                  </div>
+
+                  <div>
+                    <span className="font-semibold">
+                      Longitude
+                    </span>
+
+                    <p className="mt-1 text-gray-800">
+                      {formData.longitude}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-blue-100">
+                  <p className="text-xs font-semibold text-gray-600">
+                    Detected Address
+                  </p>
+
+                  <p className="text-sm text-gray-800 mt-1">
+                    {formData.location || "Address unavailable"}
+                  </p>
+                </div>
 
                 <button
                   type="button"
                   onClick={getLocation}
-                  className="mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                  className="mt-3 text-xs font-semibold text-blue-700 hover:text-blue-900 transition"
                 >
-                  📍 Refresh Location
+                  ↻ Refresh Location
                 </button>
               </>
             )}
-
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loadingLocation}
-            className={`w-full py-3 rounded-lg text-white transition ${
+            className={`w-full py-3 rounded-lg text-white font-semibold text-sm transition shadow-sm ${
               loadingLocation
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-700 hover:bg-blue-800"
+                : "bg-blue-700 hover:bg-blue-800 active:scale-[0.99]"
             }`}
           >
             {loadingLocation
               ? "Detecting Location..."
-              : "Submit Report"}
+              : "Submit Road Damage Report"}
           </button>
 
         </form>
