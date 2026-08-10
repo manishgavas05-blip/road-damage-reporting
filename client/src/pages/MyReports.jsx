@@ -1,27 +1,18 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function MyReports() {
-  const navigate = useNavigate();
-
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchReports();
-  }, []);
-
+  // ===============================
+  // FETCH USER REPORTS
+  // ===============================
   const fetchReports = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      const res = await axios.get(
+      const response = await axios.get(
         "http://localhost:5000/api/reports/my",
         {
           headers: {
@@ -30,45 +21,21 @@ function MyReports() {
         }
       );
 
-      setReports(res.data.reports || []);
+      setReports(response.data.reports || []);
     } catch (error) {
-      console.error("Failed to load reports:", error);
-
-      if (error.response?.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        navigate("/login");
-        return;
-      }
-
-      alert("Failed to load reports.");
+      console.error("Error fetching reports:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  // ===============================
-  // STATISTICS
-  // ===============================
-
-  const totalReports = reports.length;
-
-  const pendingReports = reports.filter(
-    (report) => report.status === "Pending"
-  ).length;
-
-  const inProgressReports = reports.filter(
-    (report) => report.status === "In Progress"
-  ).length;
-
-  const resolvedReports = reports.filter(
-    (report) => report.status === "Resolved"
-  ).length;
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
   // ===============================
   // STATUS STYLE
   // ===============================
-
   const getStatusStyle = (status) => {
     switch (status) {
       case "Resolved":
@@ -77,9 +44,6 @@ function MyReports() {
       case "In Progress":
         return "bg-blue-100 text-blue-700";
 
-      case "Rejected":
-        return "bg-red-100 text-red-700";
-
       case "Pending":
       default:
         return "bg-yellow-100 text-yellow-700";
@@ -87,17 +51,68 @@ function MyReports() {
   };
 
   // ===============================
+  // RESOLUTION NOTES
+  // ===============================
+  const getResolutionNote = (damageType) => {
+    switch (damageType) {
+      case "Pothole":
+        return "Pothole repaired and the damaged road surface has been restored.";
+
+      case "Road Crack":
+        return "Road cracks have been repaired and the damaged surface has been restored.";
+
+      case "Broken Road":
+        return "The damaged road section has been repaired and restored for safe use.";
+
+      case "Water Logging":
+        return "Water logging issue has been addressed and proper drainage has been restored.";
+
+      case "Street Light Damage":
+        return "The damaged street light has been repaired and normal operation has been restored.";
+
+      default:
+        return "The reported road damage has been inspected and resolved.";
+    }
+  };
+
+  // ===============================
+  // FORMAT DATE
+  // ===============================
+  const formatDate = (date) => {
+    if (!date) return "N/A";
+
+    return new Date(date).toLocaleString("en-IN", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
+
+  // ===============================
+  // IMAGE URL
+  // ===============================
+  const getImageUrl = (image) => {
+    if (!image) return null;
+
+    if (image.startsWith("http")) {
+      return image;
+    }
+
+    return `http://localhost:5000/uploads/${image}`;
+  };
+
+  // ===============================
   // LOADING
   // ===============================
-
   if (loading) {
     return (
-      <section className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
-            <div className="text-4xl mb-3">📋</div>
-
-            <p className="text-lg font-semibold text-blue-700">
+      <section className="min-h-screen bg-gray-50 pt-24 pb-10">
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="flex justify-center items-center py-16">
+            <p className="text-blue-700 text-base font-semibold">
               Loading your reports...
             </p>
           </div>
@@ -106,323 +121,315 @@ function MyReports() {
     );
   }
 
+  // ===============================
+  // PAGE
+  // ===============================
   return (
-    <section className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-5xl mx-auto px-4">
+    <section className="min-h-screen bg-gray-50 pt-24 pb-10">
+      <div className="max-w-6xl mx-auto px-5">
 
         {/* ===============================
-            PAGE HEADING
+            PAGE HEADER
         =============================== */}
-
-        <div className="text-center mb-7">
-
+        <div className="text-center mb-6">
           <h1 className="text-3xl md:text-4xl font-bold text-blue-700">
             My Reports
           </h1>
 
-          <p className="text-gray-500 mt-1 text-sm">
+          <p className="text-gray-500 mt-1 text-sm md:text-base">
             Track the road damage reports you have submitted.
           </p>
-
         </div>
 
         {/* ===============================
-            STATISTICS
+            REPORTS CONTAINER
         =============================== */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-
-          {/* TOTAL */}
-
-          <div className="bg-white rounded-lg shadow-sm p-3 text-center border-t-4 border-blue-600">
-
-            <div className="text-2xl mb-1">
-              📋
-            </div>
-
-            <h2 className="text-sm font-semibold text-gray-600">
-              Total Reports
-            </h2>
-
-            <p className="text-2xl font-bold text-blue-700 mt-1">
-              {totalReports}
-            </p>
-
-          </div>
-
-          {/* PENDING */}
-
-          <div className="bg-yellow-50 rounded-lg shadow-sm p-3 text-center border-t-4 border-yellow-400">
-
-            <div className="text-2xl mb-1">
-              🟡
-            </div>
-
-            <h2 className="text-sm font-semibold text-yellow-700">
-              Pending
-            </h2>
-
-            <p className="text-2xl font-bold text-yellow-700 mt-1">
-              {pendingReports}
-            </p>
-
-          </div>
-
-          {/* IN PROGRESS */}
-
-          <div className="bg-blue-50 rounded-lg shadow-sm p-3 text-center border-t-4 border-blue-500">
-
-            <div className="text-2xl mb-1">
-              🔵
-            </div>
-
-            <h2 className="text-sm font-semibold text-blue-700">
-              In Progress
-            </h2>
-
-            <p className="text-2xl font-bold text-blue-700 mt-1">
-              {inProgressReports}
-            </p>
-
-          </div>
-
-          {/* RESOLVED */}
-
-          <div className="bg-green-50 rounded-lg shadow-sm p-3 text-center border-t-4 border-green-500">
-
-            <div className="text-2xl mb-1">
-              🟢
-            </div>
-
-            <h2 className="text-sm font-semibold text-green-700">
-              Resolved
-            </h2>
-
-            <p className="text-2xl font-bold text-green-700 mt-1">
-              {resolvedReports}
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* ===============================
-            HEADER / NEW REPORT
-        =============================== */}
-
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-
-          <div>
-
-            <h2 className="text-lg font-bold text-gray-800">
+          {/* SECTION HEADER */}
+          <div className="px-5 py-4 border-b border-gray-200">
+            <h2 className="text-xl font-bold text-gray-800">
               Your Road Damage Reports
             </h2>
 
-            <p className="text-gray-500 text-xs mt-1">
+            <p className="text-gray-500 mt-1 text-sm">
               View the details and current status of every report.
             </p>
-
           </div>
 
-          <Link
-            to="/report"
-            className="inline-flex justify-center items-center bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
-          >
-            ➕ Report New Damage
-          </Link>
+          {/* ===============================
+              EMPTY STATE
+          =============================== */}
+          {reports.length === 0 ? (
+            <div className="text-center py-16 px-5">
+              <div className="text-4xl mb-3">📋</div>
 
-        </div>
+              <h3 className="text-lg font-semibold text-gray-700">
+                No reports yet
+              </h3>
 
-        {/* ===============================
-            NO REPORTS
-        =============================== */}
-
-        {reports.length === 0 ? (
-
-          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-
-            <div className="text-4xl mb-3">
-              📭
+              <p className="text-gray-500 mt-1 text-sm">
+                You haven't submitted any road damage reports.
+              </p>
             </div>
+          ) : (
+            <div>
 
-            <h2 className="text-xl font-bold text-gray-700 mb-2">
-              No Reports Found
-            </h2>
+              {/* ===============================
+                  REPORT LIST
+              =============================== */}
+              {reports.map((report) => {
+                const imageUrl = getImageUrl(report.image);
 
-            <p className="text-gray-500 text-sm mb-5">
-              You haven't submitted any road damage reports yet.
-            </p>
+                return (
+                  <div
+                    key={report._id}
+                    className="
+                      px-5 py-5
+                      border-b border-gray-200
+                      last:border-b-0
+                      hover:bg-gray-50
+                      transition
+                    "
+                  >
 
-            <Link
-              to="/report"
-              className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg font-semibold text-sm transition"
-            >
-              Report Road Damage
-            </Link>
+                    {/* ===============================
+                        MAIN REPORT ROW
+                    =============================== */}
+                    <div className="flex flex-col lg:flex-row gap-5">
 
-          </div>
+                      {/* ===============================
+                          IMAGE
+                      =============================== */}
+                      <div
+                        className="
+                          w-full
+                          lg:w-[230px]
+                          h-[150px]
+                          flex-shrink-0
+                          bg-gray-100
+                          rounded-lg
+                          overflow-hidden
+                        "
+                      >
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={report.damageType}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                            <div className="text-3xl mb-1">
+                              🛣️
+                            </div>
 
-        ) : (
-
-          /* ===============================
-             REPORTS
-          =============================== */
-
-          <div className="space-y-4">
-
-            {reports.map((report) => (
-
-              <div
-                key={report._id}
-                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition"
-              >
-
-                {/* REPORT IMAGE */}
-
-                {report.image ? (
-
-                  <img
-                    src={
-                      report.image.startsWith("http")
-                        ? report.image
-                        : `http://localhost:5000/uploads/${report.image}`
-                    }
-                    alt="Road Damage"
-                    className="w-full h-32 sm:h-36 object-cover"
-                  />
-
-                ) : (
-
-                  <div className="w-full h-20 bg-gray-100 flex items-center justify-center">
-
-                    <div className="text-center text-gray-400">
-
-                      <div className="text-2xl mb-1">
-                        🛣️
+                            <span className="text-xs">
+                              No image
+                            </span>
+                          </div>
+                        )}
                       </div>
 
-                      <p className="text-xs">
-                        No image uploaded
-                      </p>
+                      {/* ===============================
+                          REPORT INFORMATION
+                      =============================== */}
+                      <div className="flex-1 min-w-0">
 
+                        {/* TITLE + STATUS */}
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+
+                          <div>
+                            <h3 className="text-xl font-bold text-blue-700">
+                              {report.damageType}
+                            </h3>
+
+                            <p className="text-gray-600 mt-1 text-sm">
+                              📍 {report.location || "Location unavailable"}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`
+                              inline-flex
+                              w-fit
+                              px-3
+                              py-1.5
+                              rounded-full
+                              text-xs
+                              font-semibold
+                              ${getStatusStyle(report.status)}
+                            `}
+                          >
+                            {report.status}
+                          </span>
+
+                        </div>
+
+                        {/* ===============================
+                            DETAILS GRID
+                        =============================== */}
+                        <div
+                          className="
+                            grid
+                            grid-cols-1
+                            sm:grid-cols-2
+                            xl:grid-cols-4
+                            gap-x-6
+                            gap-y-4
+                            mt-4
+                          "
+                        >
+
+                          {/* REPORTER */}
+                          <div>
+                            <p className="text-xs text-gray-500">
+                              Reporter
+                            </p>
+
+                            <p className="font-semibold text-gray-800 mt-1 text-sm">
+                              {report.name || "N/A"}
+                            </p>
+                          </div>
+
+                          {/* PHONE */}
+                          <div>
+                            <p className="text-xs text-gray-500">
+                              Phone
+                            </p>
+
+                            <p className="font-semibold text-gray-800 mt-1 text-sm">
+                              {report.phone || "N/A"}
+                            </p>
+                          </div>
+
+                          {/* SUBMITTED */}
+                          <div>
+                            <p className="text-xs text-gray-500">
+                              Submitted
+                            </p>
+
+                            <p className="font-semibold text-gray-800 mt-1 text-sm">
+                              {formatDate(report.createdAt)}
+                            </p>
+                          </div>
+
+                          {/* COORDINATES */}
+                          <div>
+                            <p className="text-xs text-gray-500">
+                              Coordinates
+                            </p>
+
+                            <p className="font-semibold text-gray-800 mt-1 text-sm">
+                              {report.latitude != null &&
+                              report.longitude != null
+                                ? `${Number(report.latitude).toFixed(
+                                    6
+                                  )}, ${Number(report.longitude).toFixed(
+                                    6
+                                  )}`
+                                : "N/A"}
+                            </p>
+                          </div>
+
+                        </div>
+
+                        {/* ===============================
+                            DESCRIPTION
+                        =============================== */}
+                        <div className="mt-4">
+                          <p className="text-xs text-gray-500">
+                            Description
+                          </p>
+
+                          <p className="text-gray-700 mt-1 text-sm">
+                            {report.description ||
+                              "No description provided."}
+                          </p>
+                        </div>
+
+                        {/* ===============================
+                            RESOLUTION NOTE
+                        =============================== */}
+                        {report.status === "Resolved" && (
+                          <div
+                            className="
+                              mt-4
+                              bg-green-50
+                              border
+                              border-green-200
+                              rounded-lg
+                              px-4
+                              py-3
+                            "
+                          >
+                            <p className="font-semibold text-green-700 text-xs">
+                              Resolution Note
+                            </p>
+
+                            <p className="text-green-700 mt-1 text-sm">
+                              {report.resolutionNote ||
+                                getResolutionNote(report.damageType)}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* ===============================
+                            FOOTER
+                        =============================== */}
+                        <div
+                          className="
+                            flex
+                            flex-col
+                            sm:flex-row
+                            sm:items-center
+                            sm:justify-between
+                            gap-3
+                            mt-4
+                            pt-4
+                            border-t
+                            border-gray-200
+                          "
+                        >
+
+                          <p className="text-xs text-gray-500">
+                            Report ID:{" "}
+                            <span className="font-medium text-gray-700">
+                              {report._id}
+                            </span>
+                          </p>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              window.location.href = `/report/${report._id}`;
+                            }}
+                            className="
+                              bg-blue-600
+                              hover:bg-blue-700
+                              text-white
+                              font-semibold
+                              text-sm
+                              px-4
+                              py-2
+                              rounded-lg
+                              transition
+                              w-fit
+                            "
+                          >
+                            View Details →
+                          </button>
+
+                        </div>
+
+                      </div>
                     </div>
-
                   </div>
-
-                )}
-
-                {/* REPORT CONTENT */}
-
-                <div className="p-4">
-
-                  {/* TITLE + STATUS */}
-
-                  <div className="flex items-center justify-between gap-3 mb-3">
-
-                    <h2 className="text-lg font-bold text-blue-700">
-                      {report.damageType || "Road Damage"}
-                    </h2>
-
-                    <span
-                      className={`px-2.5 py-1 rounded-full font-semibold text-xs whitespace-nowrap ${getStatusStyle(
-                        report.status
-                      )}`}
-                    >
-                      {report.status || "Pending"}
-                    </span>
-
-                  </div>
-
-                  {/* INFORMATION */}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-
-                    <div>
-
-                      <p className="text-xs text-gray-400">
-                        Reporter
-                      </p>
-
-                      <p className="text-sm font-semibold text-gray-800">
-                        {report.name || "Not available"}
-                      </p>
-
-                    </div>
-
-                    <div>
-
-                      <p className="text-xs text-gray-400">
-                        Phone
-                      </p>
-
-                      <p className="text-sm font-semibold text-gray-800">
-                        {report.phone || "Not available"}
-                      </p>
-
-                    </div>
-
-                    <div className="sm:col-span-2">
-
-                      <p className="text-xs text-gray-400">
-                        Location
-                      </p>
-
-                      <p className="text-sm font-semibold text-gray-800">
-                        📍 {report.location || "Not available"}
-                      </p>
-
-                    </div>
-
-                  </div>
-
-                  {/* DESCRIPTION */}
-
-                  <div className="mt-3">
-
-                    <p className="text-xs text-gray-400 mb-1">
-                      Description
-                    </p>
-
-                    <p className="text-sm text-gray-700">
-                      {report.description ||
-                        "No description provided."}
-                    </p>
-
-                  </div>
-
-                  {/* BOTTOM */}
-
-                  <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t">
-
-                    <p className="text-xs text-gray-400">
-
-                      {report.createdAt
-                        ? new Date(
-                            report.createdAt
-                          ).toLocaleString()
-                        : "Date unavailable"}
-
-                    </p>
-
-                    <Link
-                      to={`/report/${report._id}`}
-                      className="inline-flex items-center bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-md font-semibold text-xs transition"
-                    >
-                      View Details →
-                    </Link>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            ))}
-
-          </div>
-
-        )}
-
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
