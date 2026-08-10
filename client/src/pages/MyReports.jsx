@@ -92,14 +92,12 @@ function MyReports() {
 
   if (loading) {
     return (
-      <section className="min-h-screen bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="bg-white rounded-2xl shadow-lg p-10">
-            <div className="text-5xl mb-4">
-              📋
-            </div>
+      <section className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="bg-white rounded-xl shadow-md p-8 text-center">
+            <div className="text-4xl mb-3">📋</div>
 
-            <p className="text-xl font-semibold text-blue-700">
+            <p className="text-lg font-semibold text-blue-700">
               Loading your reports...
             </p>
           </div>
@@ -109,114 +107,126 @@ function MyReports() {
   }
 
   return (
-    <section className="min-h-screen bg-gray-50 py-10">
-      <div className="max-w-6xl mx-auto px-4">
+    <section className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-5xl mx-auto px-4">
 
         {/* ===============================
             PAGE HEADING
         =============================== */}
 
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-blue-700">
+        <div className="text-center mb-7">
+
+          <h1 className="text-3xl md:text-4xl font-bold text-blue-700">
             My Reports
           </h1>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-gray-500 mt-1 text-sm">
             Track the road damage reports you have submitted.
           </p>
+
         </div>
 
         {/* ===============================
             STATISTICS
         =============================== */}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
 
-          {/* TOTAL REPORTS */}
+          {/* TOTAL */}
 
-          <div className="bg-white rounded-xl shadow-md p-4 text-center border-t-4 border-blue-600">
-            <div className="text-3xl mb-2">
+          <div className="bg-white rounded-lg shadow-sm p-3 text-center border-t-4 border-blue-600">
+
+            <div className="text-2xl mb-1">
               📋
             </div>
 
-            <h2 className="text-base font-semibold text-gray-600">
+            <h2 className="text-sm font-semibold text-gray-600">
               Total Reports
             </h2>
 
-            <p className="text-3xl font-bold text-blue-700 mt-2">
+            <p className="text-2xl font-bold text-blue-700 mt-1">
               {totalReports}
             </p>
+
           </div>
 
           {/* PENDING */}
 
-          <div className="bg-yellow-50 rounded-xl shadow-md p-4 text-center border-t-4 border-yellow-400">
-            <div className="text-3xl mb-2">
+          <div className="bg-yellow-50 rounded-lg shadow-sm p-3 text-center border-t-4 border-yellow-400">
+
+            <div className="text-2xl mb-1">
               🟡
             </div>
 
-            <h2 className="text-base font-semibold text-yellow-700">
+            <h2 className="text-sm font-semibold text-yellow-700">
               Pending
             </h2>
 
-            <p className="text-3xl font-bold text-yellow-700 mt-2">
+            <p className="text-2xl font-bold text-yellow-700 mt-1">
               {pendingReports}
             </p>
+
           </div>
 
           {/* IN PROGRESS */}
 
-          <div className="bg-blue-50 rounded-xl shadow-md p-4 text-center border-t-4 border-blue-500">
-            <div className="text-3xl mb-2">
+          <div className="bg-blue-50 rounded-lg shadow-sm p-3 text-center border-t-4 border-blue-500">
+
+            <div className="text-2xl mb-1">
               🔵
             </div>
 
-            <h2 className="text-base font-semibold text-blue-700">
+            <h2 className="text-sm font-semibold text-blue-700">
               In Progress
             </h2>
 
-            <p className="text-3xl font-bold text-blue-700 mt-2">
+            <p className="text-2xl font-bold text-blue-700 mt-1">
               {inProgressReports}
             </p>
+
           </div>
 
           {/* RESOLVED */}
 
-          <div className="bg-green-50 rounded-xl shadow-md p-4 text-center border-t-4 border-green-500">
-            <div className="text-3xl mb-2">
+          <div className="bg-green-50 rounded-lg shadow-sm p-3 text-center border-t-4 border-green-500">
+
+            <div className="text-2xl mb-1">
               🟢
             </div>
 
-            <h2 className="text-base font-semibold text-green-700">
+            <h2 className="text-sm font-semibold text-green-700">
               Resolved
             </h2>
 
-            <p className="text-3xl font-bold text-green-700 mt-2">
+            <p className="text-2xl font-bold text-green-700 mt-1">
               {resolvedReports}
             </p>
+
           </div>
 
         </div>
 
         {/* ===============================
-            REPORT NEW DAMAGE BUTTON
+            HEADER / NEW REPORT
         =============================== */}
 
-        <div className="bg-white rounded-xl shadow-md p-5 mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="bg-white rounded-lg shadow-sm p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
           <div>
-            <h2 className="text-xl font-bold text-gray-800">
+
+            <h2 className="text-lg font-bold text-gray-800">
               Your Road Damage Reports
             </h2>
 
-            <p className="text-gray-500 mt-1 text-sm">
+            <p className="text-gray-500 text-xs mt-1">
               View the details and current status of every report.
             </p>
+
           </div>
 
           <Link
             to="/report"
-            className="inline-flex justify-center items-center bg-blue-700 hover:bg-blue-800 text-white px-5 py-2.5 rounded-lg font-semibold transition"
+            className="inline-flex justify-center items-center bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
           >
             ➕ Report New Damage
           </Link>
@@ -228,28 +238,30 @@ function MyReports() {
         =============================== */}
 
         {reports.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-8 text-center">
 
-            <div className="text-5xl mb-4">
+          <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+
+            <div className="text-4xl mb-3">
               📭
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-700 mb-2">
+            <h2 className="text-xl font-bold text-gray-700 mb-2">
               No Reports Found
             </h2>
 
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 text-sm mb-5">
               You haven't submitted any road damage reports yet.
             </p>
 
             <Link
               to="/report"
-              className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition"
+              className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg font-semibold text-sm transition"
             >
               Report Road Damage
             </Link>
 
           </div>
+
         ) : (
 
           /* ===============================
@@ -259,14 +271,16 @@ function MyReports() {
           <div className="space-y-4">
 
             {reports.map((report) => (
+
               <div
                 key={report._id}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
+                className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition"
               >
 
                 {/* REPORT IMAGE */}
 
                 {report.image ? (
+
                   <img
                     src={
                       report.image.startsWith("http")
@@ -274,22 +288,27 @@ function MyReports() {
                         : `http://localhost:5000/uploads/${report.image}`
                     }
                     alt="Road Damage"
-                    className="w-full h-40 object-cover"
+                    className="w-full h-32 sm:h-36 object-cover"
                   />
+
                 ) : (
-                  <div className="w-full h-28 bg-gray-100 flex items-center justify-center">
+
+                  <div className="w-full h-20 bg-gray-100 flex items-center justify-center">
+
                     <div className="text-center text-gray-400">
 
-                      <div className="text-3xl mb-1">
+                      <div className="text-2xl mb-1">
                         🛣️
                       </div>
 
-                      <p className="text-sm">
+                      <p className="text-xs">
                         No image uploaded
                       </p>
 
                     </div>
+
                   </div>
+
                 )}
 
                 {/* REPORT CONTENT */}
@@ -298,14 +317,14 @@ function MyReports() {
 
                   {/* TITLE + STATUS */}
 
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+                  <div className="flex items-center justify-between gap-3 mb-3">
 
-                    <h2 className="text-xl font-bold text-blue-700">
+                    <h2 className="text-lg font-bold text-blue-700">
                       {report.damageType || "Road Damage"}
                     </h2>
 
                     <span
-                      className={`inline-block w-fit px-3 py-1.5 rounded-full font-semibold text-xs ${getStatusStyle(
+                      className={`px-2.5 py-1 rounded-full font-semibold text-xs whitespace-nowrap ${getStatusStyle(
                         report.status
                       )}`}
                     >
@@ -316,36 +335,42 @@ function MyReports() {
 
                   {/* INFORMATION */}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
 
                     <div>
-                      <p className="text-xs text-gray-500">
+
+                      <p className="text-xs text-gray-400">
                         Reporter
                       </p>
 
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm font-semibold text-gray-800">
                         {report.name || "Not available"}
                       </p>
+
                     </div>
 
                     <div>
-                      <p className="text-xs text-gray-500">
+
+                      <p className="text-xs text-gray-400">
                         Phone
                       </p>
 
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm font-semibold text-gray-800">
                         {report.phone || "Not available"}
                       </p>
+
                     </div>
 
-                    <div className="md:col-span-2">
-                      <p className="text-xs text-gray-500">
+                    <div className="sm:col-span-2">
+
+                      <p className="text-xs text-gray-400">
                         Location
                       </p>
 
-                      <p className="font-semibold text-gray-800">
+                      <p className="text-sm font-semibold text-gray-800">
                         📍 {report.location || "Not available"}
                       </p>
+
                     </div>
 
                   </div>
@@ -354,29 +379,34 @@ function MyReports() {
 
                   <div className="mt-3">
 
-                    <p className="text-xs text-gray-500 mb-1">
+                    <p className="text-xs text-gray-400 mb-1">
                       Description
                     </p>
 
-                    <p className="text-gray-700 text-sm">
-                      {report.description || "No description provided."}
+                    <p className="text-sm text-gray-700">
+                      {report.description ||
+                        "No description provided."}
                     </p>
 
                   </div>
 
                   {/* BOTTOM */}
 
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4 pt-4 border-t">
+                  <div className="flex items-center justify-between gap-3 mt-3 pt-3 border-t">
 
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-400">
+
                       {report.createdAt
-                        ? new Date(report.createdAt).toLocaleString()
+                        ? new Date(
+                            report.createdAt
+                          ).toLocaleString()
                         : "Date unavailable"}
+
                     </p>
 
                     <Link
                       to={`/report/${report._id}`}
-                      className="inline-flex justify-center items-center bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold text-sm transition"
+                      className="inline-flex items-center bg-blue-700 hover:bg-blue-800 text-white px-3 py-1.5 rounded-md font-semibold text-xs transition"
                     >
                       View Details →
                     </Link>
@@ -386,6 +416,7 @@ function MyReports() {
                 </div>
 
               </div>
+
             ))}
 
           </div>
