@@ -52,20 +52,20 @@ function ReportDetails() {
     fetchReport();
   }, [id, navigate]);
 
-  // ===============================
+  // =====================================================
   // LOADING
-  // ===============================
+  // =====================================================
   if (loading) {
     return (
-      <section className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-lg p-10 text-center">
-          <div className="text-5xl mb-4">📍</div>
+      <section className="min-h-screen bg-[#23282D] flex items-center justify-center px-4">
+        <div className="bg-[#2B3137] rounded-2xl border border-[#3B4249] shadow-xl p-10 text-center">
+          <div className="w-10 h-10 mx-auto border-4 border-[#41484F] border-t-[#F4B400] rounded-full animate-spin" />
 
-          <p className="text-xl font-semibold text-blue-700">
+          <p className="text-lg font-semibold text-white mt-5">
             Loading report...
           </p>
 
-          <p className="text-gray-500 mt-2">
+          <p className="text-sm text-[#AEB6BF] mt-2">
             Please wait while we fetch your report.
           </p>
         </div>
@@ -73,26 +73,28 @@ function ReportDetails() {
     );
   }
 
-  // ===============================
+  // =====================================================
   // ERROR
-  // ===============================
+  // =====================================================
   if (error) {
     return (
-      <section className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-lg p-10 text-center max-w-lg w-full">
-          <div className="text-5xl mb-4">⚠️</div>
+      <section className="min-h-screen bg-[#23282D] flex items-center justify-center px-4">
+        <div className="bg-[#2B3137] rounded-2xl border border-[#3B4249] shadow-xl p-10 text-center max-w-lg w-full">
+          <div className="w-12 h-12 mx-auto rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-2xl mb-4">
+            ⚠️
+          </div>
 
-          <h2 className="text-2xl font-bold text-red-600 mb-3">
+          <h2 className="text-xl font-bold text-white mb-2">
             Unable to Load Report
           </h2>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm text-[#AEB6BF] mb-6">
             {error}
           </p>
 
           <Link
             to="/my-reports"
-            className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition"
+            className="inline-flex items-center bg-[#3B4249] hover:bg-[#4A525A] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition"
           >
             ← Back to My Reports
           </Link>
@@ -105,316 +107,353 @@ function ReportDetails() {
     return null;
   }
 
-  // ===============================
+  // =====================================================
   // STATUS STYLE
-  // ===============================
+  // =====================================================
   const getStatusStyle = (status) => {
     switch (status?.toLowerCase()) {
       case "resolved":
-        return "bg-green-100 text-green-700 border-green-200";
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
 
       case "in progress":
-        return "bg-blue-100 text-blue-700 border-blue-200";
+        return "bg-amber-500/10 text-amber-400 border-amber-500/30";
 
       case "rejected":
-        return "bg-red-100 text-red-700 border-red-200";
+        return "bg-red-500/10 text-red-400 border-red-500/30";
 
       default:
-        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+        return "bg-slate-500/10 text-slate-300 border-slate-500/30";
     }
   };
 
-  // ===============================
+  // =====================================================
   // STATUS ICON
-  // ===============================
+  // =====================================================
   const getStatusIcon = (status) => {
     switch (status?.toLowerCase()) {
       case "resolved":
-        return "✅";
+        return "✓";
 
       case "in progress":
-        return "🔧";
+        return "↻";
 
       case "rejected":
-        return "❌";
+        return "×";
 
       default:
-        return "⏳";
+        return "•";
     }
   };
 
-  // ===============================
+  // =====================================================
   // IMAGE URL
-  // ===============================
+  // =====================================================
   const imageUrl = report.image
     ? report.image.startsWith("http")
       ? report.image
       : `http://localhost:5000/uploads/${report.image}`
     : null;
 
+  // =====================================================
+  // STATUS CHECKS
+  // =====================================================
+  const isPending = report.status === "Pending";
+  const isInProgress = report.status === "In Progress";
+  const isResolved = report.status === "Resolved";
+
   return (
-    <section className="min-h-screen bg-gray-100 py-10 px-4">
+    <section className="min-h-screen bg-[#23282D] py-7 px-4 md:px-6 text-white">
       <div className="max-w-6xl mx-auto">
 
-        {/* ===============================
+        {/* =================================================
             BACK BUTTON
-        =============================== */}
+        ================================================= */}
         <Link
           to="/my-reports"
-          className="inline-flex items-center text-blue-700 hover:text-blue-900 font-semibold mb-6 transition"
+          className="inline-flex items-center text-[#D5DADF] hover:text-[#F4B400] font-semibold text-sm mb-5 transition"
         >
           ← Back to My Reports
         </Link>
 
-        {/* ===============================
+        {/* =================================================
             HEADER
-        =============================== */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+        ================================================= */}
+        <div className="bg-[#2B3137] rounded-xl border border-[#3B4249] shadow-lg p-5 md:p-6 mb-5">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-            <div>
-              <p className="text-sm text-gray-500 mb-1">
-                Report Details
+            <div className="min-w-0">
+              <p className="text-[#F4B400] text-[10px] uppercase tracking-[0.2em] font-bold mb-1">
+                Road Reporting
               </p>
 
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-                📍 Road Damage Report
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                Road Damage Report
               </h1>
 
-              <p className="text-gray-500 mt-2 text-sm break-all">
+              <p className="text-xs text-[#8F99A3] mt-2 break-all">
                 Report ID: {report._id || report.id}
               </p>
             </div>
 
             <div
-              className={`inline-flex items-center gap-2 px-5 py-3 rounded-full border font-semibold ${getStatusStyle(
+              className={`inline-flex items-center gap-2 w-fit px-4 py-2 rounded-full border font-semibold text-sm ${getStatusStyle(
                 report.status
               )}`}
             >
-              <span>
+              <span className="w-5 h-5 rounded-full flex items-center justify-center bg-white/10">
                 {getStatusIcon(report.status)}
               </span>
 
-              <span>
-                {report.status || "Pending"}
-              </span>
+              <span>{report.status || "Pending"}</span>
             </div>
 
           </div>
         </div>
 
-        {/* ===============================
+        {/* =================================================
             STATUS PROGRESS
-        =============================== */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+        ================================================= */}
+        <div className="bg-[#2B3137] rounded-xl border border-[#3B4249] shadow-lg p-5 md:p-6 mb-5">
 
-          <h2 className="text-xl font-bold text-gray-800 mb-6">
-            Report Status
-          </h2>
+          <div className="flex items-center gap-2 mb-5">
+            <span className="w-1.5 h-5 rounded-full bg-[#F4B400]" />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <h2 className="text-lg font-bold text-white">
+              Report Status
+            </h2>
+          </div>
 
-            {/* Pending */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+            {/* Submitted */}
             <div
-              className={`rounded-xl p-5 border ${
-                report.status === "Pending"
-                  ? "bg-yellow-50 border-yellow-300"
-                  : report.status === "In Progress" ||
-                    report.status === "Resolved"
-                  ? "bg-green-50 border-green-200"
-                  : "bg-gray-50 border-gray-200"
+              className={`rounded-xl p-4 border ${
+                isPending
+                  ? "bg-amber-500/10 border-amber-500/30"
+                  : isInProgress || isResolved
+                  ? "bg-emerald-500/10 border-emerald-500/30"
+                  : "bg-[#252B30] border-[#3B4249]"
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="text-2xl">
-                  ⏳
+
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm ${
+                    isPending
+                      ? "bg-amber-500/15 text-amber-400"
+                      : isInProgress || isResolved
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : "bg-[#343B42] text-[#8F99A3]"
+                  }`}
+                >
+                  ✓
                 </div>
 
                 <div>
-                  <p className="font-bold text-gray-800">
+                  <p className="font-bold text-white text-sm">
                     Submitted
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs text-[#8F99A3] mt-0.5">
                     Report received
                   </p>
                 </div>
+
               </div>
             </div>
 
             {/* In Progress */}
             <div
-              className={`rounded-xl p-5 border ${
-                report.status === "In Progress"
-                  ? "bg-blue-50 border-blue-300"
-                  : report.status === "Resolved"
-                  ? "bg-green-50 border-green-200"
-                  : "bg-gray-50 border-gray-200"
+              className={`rounded-xl p-4 border ${
+                isInProgress
+                  ? "bg-amber-500/10 border-amber-500/30"
+                  : isResolved
+                  ? "bg-emerald-500/10 border-emerald-500/30"
+                  : "bg-[#252B30] border-[#3B4249]"
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="text-2xl">
-                  🔧
+
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm ${
+                    isInProgress
+                      ? "bg-amber-500/15 text-amber-400"
+                      : isResolved
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : "bg-[#343B42] text-[#8F99A3]"
+                  }`}
+                >
+                  ↻
                 </div>
 
                 <div>
-                  <p className="font-bold text-gray-800">
+                  <p className="font-bold text-white text-sm">
                     In Progress
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs text-[#8F99A3] mt-0.5">
                     Work is underway
                   </p>
                 </div>
+
               </div>
             </div>
 
             {/* Resolved */}
             <div
-              className={`rounded-xl p-5 border ${
-                report.status === "Resolved"
-                  ? "bg-green-50 border-green-300"
-                  : "bg-gray-50 border-gray-200"
+              className={`rounded-xl p-4 border ${
+                isResolved
+                  ? "bg-emerald-500/10 border-emerald-500/30"
+                  : "bg-[#252B30] border-[#3B4249]"
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="text-2xl">
-                  ✅
+
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm ${
+                    isResolved
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : "bg-[#343B42] text-[#8F99A3]"
+                  }`}
+                >
+                  ✓
                 </div>
 
                 <div>
-                  <p className="font-bold text-gray-800">
+                  <p className="font-bold text-white text-sm">
                     Resolved
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs text-[#8F99A3] mt-0.5">
                     Issue resolved
                   </p>
                 </div>
+
               </div>
             </div>
 
           </div>
         </div>
 
-        {/* ===============================
+        {/* =================================================
             MAIN CONTENT
-        =============================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        ================================================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-          {/* ===============================
-              DAMAGE IMAGE
-          =============================== */}
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {/* DAMAGE IMAGE */}
+          <div className="bg-[#2B3137] rounded-xl border border-[#3B4249] shadow-lg overflow-hidden">
 
-            <div className="p-6 border-b">
-              <h2 className="text-xl font-bold text-gray-800">
-                📷 Damage Image
-              </h2>
+            <div className="px-5 py-4 border-b border-[#3B4249]">
+              <div className="flex items-center gap-2">
+
+                <span className="w-1.5 h-5 rounded-full bg-[#F4B400]" />
+
+                <h2 className="text-lg font-bold text-white">
+                  Damage Image
+                </h2>
+
+              </div>
             </div>
 
             {imageUrl ? (
-              <div className="bg-gray-100 p-4">
+              <div className="bg-[#252B30] p-4">
                 <img
                   src={imageUrl}
                   alt="Road damage"
-                  className="w-full h-96 object-contain rounded-xl bg-white border"
+                  className="w-full h-80 object-contain rounded-lg bg-[#1F252A] border border-[#3B4249]"
                 />
               </div>
             ) : (
-              <div className="h-96 flex items-center justify-center bg-gray-100">
-                <div className="text-center text-gray-500">
-                  <div className="text-6xl mb-4">
+              <div className="h-80 flex items-center justify-center bg-[#252B30]">
+                <div className="text-center text-[#7F8992]">
+
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-[#343B42] flex items-center justify-center text-2xl mb-3">
                     🖼️
                   </div>
 
-                  <p className="font-medium">
+                  <p className="text-sm font-medium">
                     No image uploaded
                   </p>
+
                 </div>
               </div>
             )}
 
           </div>
 
-          {/* ===============================
-              REPORT INFORMATION
-          =============================== */}
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          {/* REPORT INFORMATION */}
+          <div className="bg-[#2B3137] rounded-xl border border-[#3B4249] shadow-lg p-5">
 
-            <h2 className="text-xl font-bold text-gray-800 mb-6">
-              📋 Report Information
-            </h2>
+            <div className="flex items-center gap-2 mb-5">
 
-            <div className="space-y-5">
+              <span className="w-1.5 h-5 rounded-full bg-[#F4B400]" />
 
-              {/* Damage Type */}
-              <div className="border-b pb-4">
-                <p className="text-sm text-gray-500 mb-1">
+              <h2 className="text-lg font-bold text-white">
+                Report Information
+              </h2>
+
+            </div>
+
+            <div className="space-y-4">
+
+              <div className="border-b border-[#3B4249] pb-4">
+                <p className="text-xs text-[#7F8992] mb-1">
                   Damage Type
                 </p>
 
-                <p className="font-semibold text-gray-800 text-lg">
+                <p className="font-semibold text-white">
                   {report.damageType || "Not specified"}
                 </p>
               </div>
 
-              {/* Location */}
-              <div className="border-b pb-4">
-                <p className="text-sm text-gray-500 mb-1">
+              <div className="border-b border-[#3B4249] pb-4">
+                <p className="text-xs text-[#7F8992] mb-1">
                   Location
                 </p>
 
-                <p className="font-semibold text-gray-800">
+                <p className="font-semibold text-white">
                   {report.location || "Not available"}
                 </p>
               </div>
 
-              {/* Description */}
-              <div className="border-b pb-4">
-                <p className="text-sm text-gray-500 mb-1">
+              <div className="border-b border-[#3B4249] pb-4">
+                <p className="text-xs text-[#7F8992] mb-1">
                   Description
                 </p>
 
-                <p className="text-gray-700 leading-relaxed">
-                  {report.description ||
-                    "No description provided."}
+                <p className="text-sm text-[#C3C9CE] leading-relaxed">
+                  {report.description || "No description provided."}
                 </p>
               </div>
 
-              {/* Name */}
-              <div className="border-b pb-4">
-                <p className="text-sm text-gray-500 mb-1">
+              <div className="border-b border-[#3B4249] pb-4">
+                <p className="text-xs text-[#7F8992] mb-1">
                   Reported By
                 </p>
 
-                <p className="font-semibold text-gray-800">
+                <p className="font-semibold text-white">
                   {report.name || "Not available"}
                 </p>
               </div>
 
-              {/* Phone */}
-              <div className="border-b pb-4">
-                <p className="text-sm text-gray-500 mb-1">
+              <div className="border-b border-[#3B4249] pb-4">
+                <p className="text-xs text-[#7F8992] mb-1">
                   Phone
                 </p>
 
-                <p className="font-semibold text-gray-800">
+                <p className="font-semibold text-white">
                   {report.phone || "Not available"}
                 </p>
               </div>
 
-              {/* Date */}
               <div>
-                <p className="text-sm text-gray-500 mb-1">
+                <p className="text-xs text-[#7F8992] mb-1">
                   Submitted On
                 </p>
 
-                <p className="font-semibold text-gray-800">
+                <p className="font-semibold text-white">
                   {report.createdAt
-                    ? new Date(
-                        report.createdAt
-                      ).toLocaleString()
+                    ? new Date(report.createdAt).toLocaleString()
                     : "Not available"}
                 </p>
               </div>
@@ -424,49 +463,80 @@ function ReportDetails() {
 
         </div>
 
-        {/* ===============================
+        {/* =================================================
+            RESOLUTION NOTE
+        ================================================= */}
+        {report.status === "Resolved" &&
+          report.resolutionNote && (
+            <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-5 mt-5">
+
+              <div className="flex items-start gap-3">
+
+                <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold">
+                  ✓
+                </div>
+
+                <div>
+                  <p className="text-sm font-bold text-emerald-400">
+                    Resolution Note
+                  </p>
+
+                  <p className="text-sm text-emerald-200 mt-1 leading-relaxed">
+                    {report.resolutionNote}
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+        {/* =================================================
             LOCATION DETAILS
-        =============================== */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
+        ================================================= */}
+        <div className="bg-[#2B3137] rounded-xl border border-[#3B4249] shadow-lg p-5 mt-5">
 
-          <h2 className="text-xl font-bold text-gray-800 mb-6">
-            📍 Location Details
-          </h2>
+          <div className="flex items-center gap-2 mb-5">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <span className="w-1.5 h-5 rounded-full bg-[#F4B400]" />
 
-            {/* Latitude */}
-            <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
-              <p className="text-sm text-gray-500 mb-1">
+            <h2 className="text-lg font-bold text-white">
+              Location Details
+            </h2>
+
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <div className="bg-[#252B30] rounded-lg p-4 border border-[#3B4249]">
+              <p className="text-xs text-[#7F8992] mb-1">
                 Latitude
               </p>
 
-              <p className="font-semibold text-blue-700 break-all">
+              <p className="font-semibold text-white text-sm break-all">
                 {report.latitude ?? "Not available"}
               </p>
             </div>
 
-            {/* Longitude */}
-            <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
-              <p className="text-sm text-gray-500 mb-1">
+            <div className="bg-[#252B30] rounded-lg p-4 border border-[#3B4249]">
+              <p className="text-xs text-[#7F8992] mb-1">
                 Longitude
               </p>
 
-              <p className="font-semibold text-blue-700 break-all">
+              <p className="font-semibold text-white text-sm break-all">
                 {report.longitude ?? "Not available"}
               </p>
             </div>
 
           </div>
 
-          {/* Google Maps */}
           {report.latitude != null &&
             report.longitude != null && (
               <a
                 href={`https://www.google.com/maps?q=${report.latitude},${report.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-5 bg-blue-700 hover:bg-blue-800 text-white px-5 py-3 rounded-lg font-semibold transition"
+                className="inline-flex items-center gap-2 mt-4 bg-[#3B4249] hover:bg-[#4A525A] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition"
               >
                 🗺️ Open Location in Google Maps
               </a>
@@ -474,14 +544,14 @@ function ReportDetails() {
 
         </div>
 
-        {/* ===============================
+        {/* =================================================
             FOOTER ACTION
-        =============================== */}
-        <div className="mt-6 text-center">
+        ================================================= */}
+        <div className="mt-5 text-center">
 
           <Link
             to="/my-reports"
-            className="inline-block bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold transition"
+            className="inline-flex items-center bg-[#3B4249] hover:bg-[#4A525A] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition"
           >
             View All My Reports
           </Link>

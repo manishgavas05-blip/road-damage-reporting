@@ -157,6 +157,76 @@ router.get("/map", async (req, res) => {
 });
 
 // =====================================================
+// GET RECENT ACTIVITY
+// PUBLIC
+//
+// Used by the homepage Recent Activity section.
+//
+// Only safe information is returned.
+// No phone number, user details, description,
+// image or coordinates are exposed here.
+// =====================================================
+router.get("/recent-activity", async (req, res) => {
+  try {
+    const reports = await Report.find()
+      .select(
+        "damageType location status createdAt updatedAt"
+      )
+      .sort({
+        updatedAt: -1,
+        createdAt: -1,
+      })
+      .limit(6);
+
+    const activities = reports.map((report) => {
+      let type = "new";
+      let title = "New road damage reported";
+
+      // Resolved report
+      if (report.status === "Resolved") {
+        type = "resolved";
+        title = "Report resolved";
+      }
+
+      // Report being worked on
+      else if (report.status === "In Progress") {
+        type = "progress";
+        title = "Report moved to In Progress";
+      }
+
+      // Newly submitted / pending report
+      else {
+        type = "new";
+        title = "New road damage reported";
+      }
+
+      return {
+        id: report._id,
+        type,
+        title,
+        damageType: report.damageType,
+        location: report.location,
+        status: report.status,
+        createdAt: report.createdAt,
+        updatedAt: report.updatedAt,
+      };
+    });
+
+    res.json({
+      success: true,
+      activities,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching recent activity:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// =====================================================
 // GET ALL REPORTS
 // ADMIN ONLY
 // IMPORTANT: Keep this BEFORE /:id

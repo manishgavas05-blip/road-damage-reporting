@@ -41,97 +41,120 @@ function Register() {
 
   return (
     <section
-      className="min-h-screen flex items-center justify-center bg-cover bg-center relative px-4 py-10"
+      className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-cover bg-center bg-no-repeat relative px-4 py-8"
       style={{
         backgroundImage: `url(${roadBg})`,
       }}
     >
-      {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-black/20"></div>
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-[#263238]/45"></div>
 
       {/* Register Card */}
-      <div className="relative w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-7 border border-white/30">
+      <div className="relative z-10 w-full max-w-md bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-2xl px-7 py-7">
 
         {/* Heading */}
-        <h1 className="text-4xl font-bold text-center text-blue-700 mb-2">
-          Create Account
-        </h1>
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-[#3F454B] flex items-center justify-center shadow-sm">
+            <span className="text-amber-400 text-xl">🚧</span>
+          </div>
 
-        <p className="text-center text-gray-600 mb-6">
-          Join the Road Damage Reporting System
-        </p>
+          <h1 className="text-3xl font-bold text-[#3F454B]">
+            Create Account
+          </h1>
+
+          <p className="text-slate-500 mt-1 text-sm font-medium">
+            Join the Road Reporting System
+          </p>
+        </div>
 
         {/* Register Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* Full Name */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">
+            <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Full Name
             </label>
 
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              className="w-full border border-gray-300 bg-white/75 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                👤
+              </span>
+
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your full name"
+                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                required
+              />
+            </div>
           </div>
 
           {/* Email */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">
+            <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Email Address
             </label>
 
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email"
-              className="w-full border border-gray-300 bg-white/75 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                ✉
+              </span>
+
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Enter your email"
+                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                required
+              />
+            </div>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">
+            <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Password
             </label>
 
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              className="w-full border border-gray-300 bg-white/75 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                🔒
+              </span>
+
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                required
+              />
+            </div>
           </div>
 
           {/* Create Account Button */}
           <button
             type="submit"
-            className="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-xl font-semibold transition shadow-md"
+            className="w-full bg-[#3F454B] hover:bg-[#50575E] text-white py-3 rounded-lg font-semibold transition shadow-md"
           >
             Create Account
           </button>
-
         </form>
 
         {/* Login Link */}
-        <p className="text-center mt-6 text-gray-600">
+        <p className="text-center mt-5 text-slate-500 text-sm">
           Already have an account?{" "}
 
           <Link
             to="/login"
-            className="text-blue-700 font-semibold hover:underline"
+            className="text-amber-600 font-semibold hover:text-amber-700 hover:underline"
           >
             Login
           </Link>

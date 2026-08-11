@@ -69,25 +69,29 @@ function Login() {
         backgroundImage: `url(${roadBg})`,
       }}
     >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/35"></div>
+      {/* Background Overlay */}
+      <div className="absolute inset-0 bg-[#263238]/45"></div>
 
       {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md bg-white/30 backdrop-blur-md border border-white/40 rounded-2xl shadow-2xl px-7 py-6">
+      <div className="relative z-10 w-full max-w-md bg-white/90 backdrop-blur-md border border-white/60 rounded-2xl shadow-2xl px-7 py-7">
 
         {/* Heading */}
-        <div className="text-center mb-5">
-          <h1 className="text-4xl font-bold text-blue-700">
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-[#3F454B] flex items-center justify-center shadow-sm">
+            <span className="text-amber-400 text-xl">🚧</span>
+          </div>
+
+          <h1 className="text-3xl font-bold text-[#3F454B]">
             Login
           </h1>
 
-          <p className="text-gray-800 mt-1 text-sm font-medium">
-            Road Damage Reporting System
+          <p className="text-slate-500 mt-1 text-sm font-medium">
+            Road Reporting System
           </p>
         </div>
 
         {/* User/Admin Tabs */}
-        <div className="flex mb-5 border border-gray-300 rounded-xl overflow-hidden bg-white/80">
+        <div className="flex mb-6 border border-slate-300 rounded-xl overflow-hidden bg-slate-100">
 
           {/* User Login */}
           <button
@@ -95,8 +99,8 @@ function Login() {
             onClick={() => setLoginType("user")}
             className={`w-1/2 py-2.5 font-semibold transition ${
               loginType === "user"
-                ? "bg-blue-700 text-white"
-                : "bg-white/80 text-gray-700 hover:bg-gray-100"
+                ? "bg-[#3F454B] text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
             User Login
@@ -108,8 +112,8 @@ function Login() {
             onClick={() => setLoginType("admin")}
             className={`w-1/2 py-2.5 font-semibold transition ${
               loginType === "admin"
-                ? "bg-blue-700 text-white"
-                : "bg-white/80 text-gray-700 hover:bg-gray-100"
+                ? "bg-[#3F454B] text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
             Admin Login
@@ -121,12 +125,12 @@ function Login() {
 
           {/* Email */}
           <div>
-            <label className="block mb-1.5 font-semibold text-gray-800 text-sm">
+            <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Email
             </label>
 
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                 ✉
               </span>
 
@@ -136,7 +140,7 @@ function Login() {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full border border-gray-300 bg-white/90 rounded-lg py-3 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 required
               />
             </div>
@@ -144,12 +148,12 @@ function Login() {
 
           {/* Password */}
           <div>
-            <label className="block mb-1.5 font-semibold text-gray-800 text-sm">
+            <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Password
             </label>
 
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                 🔒
               </span>
 
@@ -159,7 +163,7 @@ function Login() {
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border border-gray-300 bg-white/90 rounded-lg py-3 pl-10 pr-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 required
               />
             </div>
@@ -168,22 +172,19 @@ function Login() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-700 hover:bg-blue-800 text-white py-3 rounded-lg font-semibold transition shadow-md"
+            className="w-full bg-[#3F454B] hover:bg-[#50575E] text-white py-3 rounded-lg font-semibold transition shadow-md"
           >
-            {loginType === "admin"
-              ? "Admin Login"
-              : "User Login"}
+            {loginType === "admin" ? "Admin Login" : "User Login"}
           </button>
-
         </form>
 
         {/* Register Link */}
-        <p className="text-center mt-5 text-gray-800 text-sm">
+        <p className="text-center mt-5 text-slate-500 text-sm">
           Don't have an account?{" "}
 
           <Link
             to="/register"
-            className="text-blue-700 font-semibold hover:underline"
+            className="text-amber-600 font-semibold hover:text-amber-700 hover:underline"
           >
             Register
           </Link>

@@ -34,27 +34,57 @@ function Navbar() {
 
   const isLoggedIn = Boolean(token && user);
 
-  return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+  const isActive = (path) => location.pathname === path;
 
-        {/* Logo */}
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-5 md:px-6 py-3.5 flex items-center justify-between">
+
+        {/* =================================================
+            LOGO
+        ================================================= */}
         <Link
           to="/"
-          className="text-xl md:text-2xl font-bold text-blue-700"
+          className="flex items-center gap-2.5 group"
         >
-          🚧 Road Damage
+          {/* Road Icon */}
+          <div className="relative w-9 h-9 rounded-lg bg-[#1F2933] flex items-center justify-center overflow-hidden shadow-sm">
+            <div className="absolute left-1/2 -translate-x-1/2 h-full w-1 bg-[#F4B400]" />
+
+            <div className="absolute left-1/2 -translate-x-1/2 h-full flex flex-col justify-around py-1">
+              <span className="w-0.5 h-1.5 bg-white rounded-full" />
+              <span className="w-0.5 h-1.5 bg-white rounded-full" />
+              <span className="w-0.5 h-1.5 bg-white rounded-full" />
+            </div>
+          </div>
+
+          {/* Brand Name */}
+          <div className="leading-tight">
+            <h1 className="text-lg md:text-xl font-extrabold tracking-tight text-[#1F2933] group-hover:text-[#263B4A] transition">
+              Road Reporting
+            </h1>
+
+            <p className="hidden sm:block text-[10px] uppercase tracking-[0.16em] text-[#66727D] font-semibold">
+              Report • Track • Improve
+            </p>
+          </div>
         </Link>
 
-        {/* Navigation */}
-        <div className="flex items-center gap-4 md:gap-6">
+        {/* =================================================
+            NAVIGATION
+        ================================================= */}
+        <div className="flex items-center gap-2 md:gap-5">
 
           {isLoggedIn ? (
             <>
               {/* Home */}
               <Link
                 to="/"
-                className="text-gray-700 hover:text-blue-700 font-medium transition"
+                className={`hidden sm:block px-2 py-2 text-sm font-semibold transition ${
+                  isActive("/")
+                    ? "text-[#1F2933]"
+                    : "text-[#66727D] hover:text-[#1F2933]"
+                }`}
               >
                 Home
               </Link>
@@ -62,16 +92,26 @@ function Navbar() {
               {/* Normal User */}
               {user.role !== "admin" && (
                 <>
+                  {/* Report Damage */}
                   <Link
                     to="/report"
-                    className="text-gray-700 hover:text-blue-700 font-medium transition"
+                    className={`hidden md:block px-2 py-2 text-sm font-semibold transition ${
+                      isActive("/report")
+                        ? "text-[#1F2933]"
+                        : "text-[#66727D] hover:text-[#1F2933]"
+                    }`}
                   >
                     Report Damage
                   </Link>
 
+                  {/* Profile */}
                   <Link
                     to="/profile"
-                    className="text-gray-700 hover:text-blue-700 font-medium transition"
+                    className={`hidden sm:block px-2 py-2 text-sm font-semibold transition ${
+                      isActive("/profile")
+                        ? "text-[#1F2933]"
+                        : "text-[#66727D] hover:text-[#1F2933]"
+                    }`}
                   >
                     Profile
                   </Link>
@@ -82,7 +122,11 @@ function Navbar() {
               {user.role === "admin" && (
                 <Link
                   to="/admin"
-                  className="text-gray-700 hover:text-blue-700 font-medium transition"
+                  className={`hidden sm:block px-2 py-2 text-sm font-semibold transition ${
+                    isActive("/admin")
+                      ? "text-[#1F2933]"
+                      : "text-[#66727D] hover:text-[#1F2933]"
+                  }`}
                 >
                   Admin Dashboard
                 </Link>
@@ -91,31 +135,41 @@ function Navbar() {
               {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+                className="bg-[#1F2933] hover:bg-[#263B4A] text-white px-4 md:px-5 py-2 rounded-lg text-sm font-semibold transition shadow-sm"
               >
                 Logout
               </button>
             </>
           ) : (
             <>
-              {/* Logged Out */}
+              {/* Logged Out - Home */}
               <Link
                 to="/"
-                className="text-gray-700 hover:text-blue-700 font-medium transition"
+                className={`hidden sm:block px-2 py-2 text-sm font-semibold transition ${
+                  isActive("/")
+                    ? "text-[#1F2933]"
+                    : "text-[#66727D] hover:text-[#1F2933]"
+                }`}
               >
                 Home
               </Link>
 
+              {/* Login */}
               <Link
                 to="/login"
-                className="text-gray-700 hover:text-blue-700 font-medium transition"
+                className={`hidden sm:block px-2 py-2 text-sm font-semibold transition ${
+                  isActive("/login")
+                    ? "text-[#1F2933]"
+                    : "text-[#66727D] hover:text-[#1F2933]"
+                }`}
               >
                 Login
               </Link>
 
+              {/* Register */}
               <Link
                 to="/register"
-                className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold transition"
+                className="bg-[#F4B400] hover:bg-[#D99A00] text-[#1F2933] px-4 md:px-5 py-2 rounded-lg text-sm font-bold transition shadow-sm"
               >
                 Register
               </Link>

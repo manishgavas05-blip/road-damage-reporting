@@ -15,9 +15,9 @@ function ReportDamage() {
 
   const [loadingLocation, setLoadingLocation] = useState(true);
 
-  // ===============================
+  // =====================================================
   // GET USER LOCATION + ADDRESS
-  // ===============================
+  // =====================================================
   const getLocation = () => {
     setLoadingLocation(true);
 
@@ -92,6 +92,9 @@ function ReportDamage() {
     getLocation();
   }, []);
 
+  // =====================================================
+  // HANDLE FORM CHANGE
+  // =====================================================
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -101,6 +104,9 @@ function ReportDamage() {
     }));
   };
 
+  // =====================================================
+  // SUBMIT REPORT
+  // =====================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -158,224 +164,453 @@ function ReportDamage() {
   };
 
   return (
-    <section className="min-h-screen bg-gray-100 py-8 px-4">
+    <section className="min-h-screen bg-[#1F2933] py-10 px-4 sm:px-6">
 
-      {/* Main Card */}
-      <div className="mx-auto w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+      {/* =====================================================
+          PAGE CONTAINER
+      ===================================================== */}
+      <div className="mx-auto w-full max-w-3xl">
 
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-gray-200">
-          <h1 className="text-3xl font-bold text-center text-blue-700">
+        {/* =====================================================
+            PAGE HEADER
+        ===================================================== */}
+        <div className="text-center mb-7">
+
+          <div className="inline-flex items-center gap-2 bg-[#343B42] border border-[#454A4F] rounded-full px-3 py-1 mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#F4B400]" />
+
+            <span className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#F4B400]">
+              Road Reporting
+            </span>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
             Report Road Damage
           </h1>
 
-          <p className="text-center text-gray-500 text-sm mt-1">
-            Help us identify and fix road problems in your area.
+          <p className="text-sm text-[#AEB6BE] mt-2 max-w-xl mx-auto leading-relaxed">
+            Help improve road safety by reporting potholes, cracks,
+            waterlogging and other road-related issues.
           </p>
+
         </div>
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="px-6 py-6 space-y-4"
-        >
+        {/* =====================================================
+            MAIN CARD
+        ===================================================== */}
+        <div className="bg-[#272D32] rounded-xl border border-[#3C4349] shadow-[0_8px_25px_rgba(0,0,0,0.25)] overflow-hidden">
 
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Full Name
-            </label>
+          {/* =====================================================
+              CARD HEADER
+          ===================================================== */}
+          <div className="bg-[#343B42] px-5 sm:px-6 py-4 border-b border-[#454A4F]">
 
-            <input
-              type="text"
-              name="name"
-              placeholder="Enter your full name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              required
-            />
-          </div>
+            <div className="flex items-center gap-3">
 
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Phone Number
-            </label>
+              <div className="w-10 h-10 rounded-lg bg-[#F4B400] text-[#1F2933] flex items-center justify-center text-lg shadow-sm">
+                🚧
+              </div>
 
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Enter your phone number"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              required
-            />
-          </div>
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-white">
+                  Submit a Report
+                </h2>
 
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Detected Location
-            </label>
+                <p className="text-xs text-[#B7BEC5] mt-0.5">
+                  Provide accurate information about the road issue.
+                </p>
+              </div>
 
-            <input
-              type="text"
-              name="location"
-              value={
-                loadingLocation
-                  ? "Detecting your location..."
-                  : formData.location
-              }
-              readOnly
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-gray-50 text-gray-700"
-            />
-          </div>
-
-          {/* Damage Type */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Damage Type
-            </label>
-
-            <select
-              name="damageType"
-              value={formData.damageType}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            >
-              <option>Pothole</option>
-              <option>Road Crack</option>
-              <option>Broken Road</option>
-              <option>Water Logging</option>
-              <option>Street Light Damage</option>
-            </select>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Description
-            </label>
-
-            <textarea
-              name="description"
-              rows="3"
-              placeholder="Describe the road damage..."
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-              required
-            />
-          </div>
-
-          {/* Image */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Upload Image
-            </label>
-
-            <div className="border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50">
-              <input
-                type="file"
-                name="image"
-                accept="image/*"
-                onChange={handleChange}
-                className="w-full text-sm text-gray-600"
-              />
-
-              <p className="text-xs text-gray-400 mt-1">
-                Upload a clear photo of the damaged road.
-              </p>
             </div>
+
           </div>
 
-          {/* GPS Status */}
-          <div className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3">
+          {/* =====================================================
+              FORM
+          ===================================================== */}
+          <form
+            onSubmit={handleSubmit}
+            className="px-5 sm:px-6 py-6 space-y-6"
+          >
 
-            {loadingLocation ? (
-              <div className="flex items-center gap-2">
-                <span className="animate-pulse text-blue-600">
+            {/* =====================================================
+                SECTION 01 — CONTACT
+            ===================================================== */}
+            <div>
+
+              <div className="flex items-center gap-2 mb-4">
+
+                <span className="text-[11px] font-bold text-[#F4B400] bg-[#3A3423] rounded-md px-2 py-1">
+                  01
+                </span>
+
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+                  Contact Information
+                </h3>
+
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                {/* Full Name */}
+                <div>
+
+                  <label className="block text-xs font-semibold text-[#D5DADE] mb-1.5">
+                    Full Name
+                  </label>
+
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full border border-[#4A5259] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#7F8992] bg-[#20262B] focus:outline-none focus:border-[#F4B400] focus:ring-2 focus:ring-[#F4B400]/20 transition"
+                    required
+                  />
+
+                </div>
+
+                {/* Phone */}
+                <div>
+
+                  <label className="block text-xs font-semibold text-[#D5DADE] mb-1.5">
+                    Phone Number
+                  </label>
+
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Enter your phone number"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full border border-[#4A5259] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#7F8992] bg-[#20262B] focus:outline-none focus:border-[#F4B400] focus:ring-2 focus:ring-[#F4B400]/20 transition"
+                    required
+                  />
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="border-t border-[#3B4248]" />
+
+            {/* =====================================================
+                SECTION 02 — LOCATION
+            ===================================================== */}
+            <div>
+
+              <div className="flex items-center gap-2 mb-4">
+
+                <span className="text-[11px] font-bold text-[#F4B400] bg-[#3A3423] rounded-md px-2 py-1">
+                  02
+                </span>
+
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+                  Location
+                </h3>
+
+              </div>
+
+              <label className="block text-xs font-semibold text-[#D5DADE] mb-1.5">
+                Detected Location
+              </label>
+
+              <div className="relative">
+
+                <input
+                  type="text"
+                  name="location"
+                  value={
+                    loadingLocation
+                      ? "Detecting your location..."
+                      : formData.location
+                  }
+                  readOnly
+                  className="w-full border border-[#4A5259] rounded-lg px-3 py-2.5 pr-10 text-sm bg-[#20262B] text-[#C5CBD1] focus:outline-none"
+                />
+
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm">
                   📍
                 </span>
 
-                <p className="text-sm font-semibold text-blue-700">
-                  Detecting your location...
-                </p>
               </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-blue-800">
-                    📍 Location Detected
-                  </p>
 
-                  <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
-                    Ready
-                  </span>
+              <p className="text-[11px] text-[#858F98] mt-1.5">
+                Your current location is automatically detected using GPS.
+              </p>
+
+            </div>
+
+            <div className="border-t border-[#3B4248]" />
+
+            {/* =====================================================
+                SECTION 03 — DAMAGE DETAILS
+            ===================================================== */}
+            <div>
+
+              <div className="flex items-center gap-2 mb-4">
+
+                <span className="text-[11px] font-bold text-[#F4B400] bg-[#3A3423] rounded-md px-2 py-1">
+                  03
+                </span>
+
+                <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+                  Damage Details
+                </h3>
+
+              </div>
+
+              <div className="space-y-4">
+
+                {/* Damage Type */}
+                <div>
+
+                  <label className="block text-xs font-semibold text-[#D5DADE] mb-1.5">
+                    Damage Type
+                  </label>
+
+                  <select
+                    name="damageType"
+                    value={formData.damageType}
+                    onChange={handleChange}
+                    className="w-full border border-[#4A5259] rounded-lg px-3 py-2.5 text-sm bg-[#20262B] text-white focus:outline-none focus:border-[#F4B400] focus:ring-2 focus:ring-[#F4B400]/20 transition"
+                  >
+                    <option>Pothole</option>
+                    <option>Road Crack</option>
+                    <option>Broken Road</option>
+                    <option>Water Logging</option>
+                    <option>Street Light Damage</option>
+                  </select>
+
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 text-xs text-gray-600">
-                  <div>
-                    <span className="font-semibold">
-                      Latitude
+                {/* Description */}
+                <div>
+
+                  <div className="flex items-center justify-between mb-1.5">
+
+                    <label className="block text-xs font-semibold text-[#D5DADE]">
+                      Description
+                    </label>
+
+                    <span className="text-[10px] text-[#7F8992]">
+                      Be specific
                     </span>
 
-                    <p className="mt-1 text-gray-800">
-                      {formData.latitude}
-                    </p>
+                  </div>
+
+                  <textarea
+                    name="description"
+                    rows="4"
+                    placeholder="Describe the road damage, its size, severity, or any danger it may cause..."
+                    value={formData.description}
+                    onChange={handleChange}
+                    className="w-full border border-[#4A5259] rounded-lg px-3 py-2.5 text-sm text-white placeholder-[#7F8992] bg-[#20262B] resize-none focus:outline-none focus:border-[#F4B400] focus:ring-2 focus:ring-[#F4B400]/20 transition"
+                    required
+                  />
+
+                </div>
+
+                {/* Image */}
+                <div>
+
+                  <label className="block text-xs font-semibold text-[#D5DADE] mb-1.5">
+                    Road Damage Photo
+                  </label>
+
+                  <div className="border border-dashed border-[#4A5259] rounded-lg p-4 bg-[#20262B] hover:border-[#F4B400] hover:bg-[#252B30] transition">
+
+                    <div className="flex items-center gap-3 mb-3">
+
+                      <div className="w-9 h-9 rounded-lg bg-[#343B42] text-[#F4B400] flex items-center justify-center text-sm">
+                        📷
+                      </div>
+
+                      <div>
+
+                        <p className="text-xs font-semibold text-white">
+                          Upload a clear image
+                        </p>
+
+                        <p className="text-[11px] text-[#858F98]">
+                          A photo helps authorities verify the issue.
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                    <input
+                      type="file"
+                      name="image"
+                      accept="image/*"
+                      onChange={handleChange}
+                      className="w-full text-xs text-[#AEB6BE] file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-[#343B42] file:text-white file:text-xs file:font-semibold hover:file:bg-[#454A4F] file:cursor-pointer"
+                    />
+
+                    {formData.image && (
+                      <p className="text-[11px] text-emerald-400 mt-2 font-medium">
+                        ✓ {formData.image.name}
+                      </p>
+                    )}
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* =====================================================
+                GPS STATUS
+            ===================================================== */}
+            <div className="rounded-lg border border-[#454C52] bg-[#20262B] p-4">
+
+              {loadingLocation ? (
+
+                <div className="flex items-center gap-3">
+
+                  <div className="w-9 h-9 rounded-lg bg-[#343B42] text-[#F4B400] flex items-center justify-center animate-pulse">
+                    📍
                   </div>
 
                   <div>
-                    <span className="font-semibold">
-                      Longitude
+
+                    <p className="text-sm font-semibold text-white">
+                      Detecting your location...
+                    </p>
+
+                    <p className="text-xs text-[#858F98] mt-0.5">
+                      Please wait while GPS coordinates are retrieved.
+                    </p>
+
+                  </div>
+
+                </div>
+
+              ) : (
+
+                <>
+
+                  <div className="flex items-center justify-between mb-4">
+
+                    <div className="flex items-center gap-2">
+
+                      <span className="text-[#F4B400]">
+                        📍
+                      </span>
+
+                      <p className="text-sm font-bold text-white">
+                        Location Detected
+                      </p>
+
+                    </div>
+
+                    <span className="text-[10px] uppercase tracking-wide bg-emerald-900/30 text-emerald-400 border border-emerald-800 px-2 py-1 rounded-full font-bold">
+                      Ready
                     </span>
 
-                    <p className="mt-1 text-gray-800">
-                      {formData.longitude}
-                    </p>
                   </div>
-                </div>
 
-                <div className="mt-3 pt-3 border-t border-blue-100">
-                  <p className="text-xs font-semibold text-gray-600">
-                    Detected Address
-                  </p>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
 
-                  <p className="text-sm text-gray-800 mt-1">
-                    {formData.location || "Address unavailable"}
-                  </p>
-                </div>
+                    <div className="bg-[#292F34] border border-[#454C52] rounded-lg p-3">
 
-                <button
-                  type="button"
-                  onClick={getLocation}
-                  className="mt-3 text-xs font-semibold text-blue-700 hover:text-blue-900 transition"
-                >
-                  ↻ Refresh Location
-                </button>
-              </>
-            )}
-          </div>
+                      <span className="font-semibold text-[#8E98A1]">
+                        Latitude
+                      </span>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loadingLocation}
-            className={`w-full py-3 rounded-lg text-white font-semibold text-sm transition shadow-sm ${
-              loadingLocation
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-700 hover:bg-blue-800 active:scale-[0.99]"
-            }`}
-          >
-            {loadingLocation
-              ? "Detecting Location..."
-              : "Submit Road Damage Report"}
-          </button>
+                      <p className="mt-1 text-white font-medium break-all">
+                        {formData.latitude}
+                      </p>
 
-        </form>
+                    </div>
+
+                    <div className="bg-[#292F34] border border-[#454C52] rounded-lg p-3">
+
+                      <span className="font-semibold text-[#8E98A1]">
+                        Longitude
+                      </span>
+
+                      <p className="mt-1 text-white font-medium break-all">
+                        {formData.longitude}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <div className="mt-3 pt-3 border-t border-[#454C52]">
+
+                    <p className="text-xs font-semibold text-[#8E98A1]">
+                      Detected Address
+                    </p>
+
+                    <p className="text-sm text-white mt-1">
+                      {formData.location || "Address unavailable"}
+                    </p>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={getLocation}
+                    className="mt-3 text-xs font-bold text-[#C5CBD1] hover:text-[#F4B400] transition"
+                  >
+                    ↻ Refresh Location
+                  </button>
+
+                </>
+
+              )}
+
+            </div>
+
+            {/* =====================================================
+                SUBMIT
+            ===================================================== */}
+            <div className="pt-1">
+
+              <button
+                type="submit"
+                disabled={loadingLocation}
+                className={`w-full py-3 rounded-lg font-bold text-sm transition ${
+                  loadingLocation
+                    ? "bg-[#454A4F] text-[#858F98] cursor-not-allowed"
+                    : "bg-[#F4B400] hover:bg-[#D99A00] text-[#1F2933] shadow-sm hover:shadow-md active:scale-[0.99]"
+                }`}
+              >
+                {loadingLocation
+                  ? "Detecting Location..."
+                  : "Submit Road Damage Report"}
+              </button>
+
+              <p className="text-center text-[11px] text-[#7F8992] mt-2">
+                Your report will be submitted with the detected GPS location.
+              </p>
+
+            </div>
+
+          </form>
+
+        </div>
+
+        {/* =====================================================
+            FOOTER NOTE
+        ===================================================== */}
+        <div className="flex items-center justify-center gap-2 mt-5 text-[11px] text-[#7F8992]">
+          <span>🛡️</span>
+
+          <span>
+            Your location and report details are used for road reporting.
+          </span>
+        </div>
+
       </div>
+
     </section>
   );
 }

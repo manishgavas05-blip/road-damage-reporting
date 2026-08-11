@@ -13,6 +13,9 @@ function Dashboard() {
     fetchMyReports();
   }, []);
 
+  // =====================================================
+  // FETCH MY REPORTS
+  // =====================================================
   const fetchMyReports = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -32,6 +35,7 @@ function Dashboard() {
       );
 
       setReports(res.data.reports || []);
+      setError("");
     } catch (error) {
       console.error("Failed to load dashboard:", error);
 
@@ -52,9 +56,9 @@ function Dashboard() {
     }
   };
 
-  // ===============================
+  // =====================================================
   // USER REPORT STATISTICS
-  // ===============================
+  // =====================================================
   const stats = {
     total: reports.length,
 
@@ -71,9 +75,9 @@ function Dashboard() {
     ).length,
   };
 
-  // ===============================
+  // =====================================================
   // RECENT REPORTS
-  // ===============================
+  // =====================================================
   const recentReports = [...reports]
     .sort(
       (a, b) =>
@@ -81,63 +85,87 @@ function Dashboard() {
     )
     .slice(0, 5);
 
-  // ===============================
+  // =====================================================
   // STATUS STYLE
-  // ===============================
+  // =====================================================
   const getStatusStyle = (status) => {
     switch (status) {
       case "Resolved":
-        return "bg-green-100 text-green-700";
+        return "bg-emerald-50 text-emerald-700 border border-emerald-200";
 
       case "In Progress":
-        return "bg-blue-100 text-blue-700";
+        return "bg-amber-50 text-amber-700 border border-amber-200";
 
       case "Pending":
       default:
-        return "bg-yellow-100 text-yellow-700";
+        return "bg-slate-100 text-slate-600 border border-slate-200";
     }
   };
 
-  // ===============================
+  // =====================================================
+  // STATUS ICON
+  // =====================================================
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "Resolved":
+        return "✓";
+
+      case "In Progress":
+        return "↻";
+
+      case "Pending":
+      default:
+        return "○";
+    }
+  };
+
+  // =====================================================
   // LOADING
-  // ===============================
+  // =====================================================
   if (loading) {
     return (
-      <section className="min-h-[70vh] flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="text-5xl mb-4">📊</div>
+      <section className="min-h-screen bg-[#F5F6F7] py-8 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
 
-          <p className="text-xl font-semibold text-blue-700">
-            Loading dashboard...
-          </p>
+            <div className="w-9 h-9 mx-auto border-4 border-slate-200 border-t-amber-400 rounded-full animate-spin" />
+
+            <p className="text-sm font-semibold text-slate-600 mt-4">
+              Loading Dashboard...
+            </p>
+
+          </div>
         </div>
       </section>
     );
   }
 
-  // ===============================
+  // =====================================================
   // ERROR
-  // ===============================
+  // =====================================================
   if (error) {
     return (
-      <section className="min-h-[70vh] flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-lg w-full">
+      <section className="min-h-screen bg-[#F5F6F7] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center max-w-lg w-full">
 
-          <div className="text-5xl mb-4">
+          <div className="w-12 h-12 mx-auto rounded-xl bg-red-50 flex items-center justify-center text-xl mb-4">
             ⚠️
           </div>
 
-          <h2 className="text-2xl font-bold text-red-600 mb-3">
+          <h2 className="text-xl font-bold text-[#4B5157] mb-2">
             Unable to Load Dashboard
           </h2>
 
-          <p className="text-gray-600 mb-6">
+          <p className="text-sm text-slate-500 mb-6">
             {error}
           </p>
 
           <button
-            onClick={fetchMyReports}
-            className="bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition"
+            onClick={() => {
+              setLoading(true);
+              fetchMyReports();
+            }}
+            className="bg-[#4B5157] hover:bg-[#5A6168] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm"
           >
             Try Again
           </button>
@@ -148,192 +176,281 @@ function Dashboard() {
   }
 
   return (
-    <section className="py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="min-h-screen bg-[#F5F6F7] py-7 px-4 md:px-6">
+      <div className="max-w-7xl mx-auto">
 
-        {/* ===============================
+        {/* =====================================================
             HEADER
-        =============================== */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+        ===================================================== */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
 
           <div>
-            <h1 className="text-4xl font-bold text-blue-700">
-              📊 Dashboard
-            </h1>
+            <div className="flex items-center gap-3">
 
-            <p className="text-gray-600 mt-2">
-              Track your road damage reports and their status.
+              <div className="w-10 h-10 rounded-xl bg-[#4B5157] flex items-center justify-center shadow-sm">
+                <span className="text-amber-400 text-lg">
+                  📊
+                </span>
+              </div>
+
+              <div>
+                <p className="text-amber-500 text-[10px] uppercase tracking-[0.2em] font-bold">
+                  Road Reporting
+                </p>
+
+                <h1 className="text-2xl md:text-3xl font-bold text-[#4B5157] tracking-tight">
+                  My Dashboard
+                </h1>
+              </div>
+
+            </div>
+
+            <p className="text-slate-500 mt-2 text-sm">
+              Track your road damage reports and monitor their progress.
             </p>
           </div>
 
           <Link
             to="/report"
-            className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold text-center transition"
+            className="inline-flex items-center justify-center gap-2 bg-[#4B5157] hover:bg-[#5A6168] text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition shadow-sm"
           >
-            ➕ Report New Damage
+            <span className="text-amber-400">
+              +
+            </span>
+            Report New Damage
           </Link>
 
         </div>
 
-        {/* ===============================
+        {/* =====================================================
             STATISTICS
-        =============================== */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        ===================================================== */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
 
           {/* Total */}
-          <div className="bg-white shadow-lg rounded-xl p-6 text-center">
-            <div className="text-4xl mb-3">
-              📋
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 hover:shadow-md transition">
+
+            <div className="flex items-center justify-between">
+
+              <div>
+                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
+                  Total Reports
+                </p>
+
+                <p className="text-2xl font-bold text-[#4B5157] mt-1">
+                  {stats.total}
+                </p>
+              </div>
+
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-base">
+                📋
+              </div>
+
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-600">
-              Total Reports
-            </h2>
-
-            <p className="text-4xl font-bold text-blue-700 mt-4">
-              {stats.total}
-            </p>
           </div>
 
           {/* Pending */}
-          <div className="bg-yellow-100 shadow-lg rounded-xl p-6 text-center">
-            <div className="text-4xl mb-3">
-              🟡
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 hover:shadow-md transition">
+
+            <div className="flex items-center justify-between">
+
+              <div>
+                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
+                  Pending
+                </p>
+
+                <p className="text-2xl font-bold text-amber-600 mt-1">
+                  {stats.pending}
+                </p>
+              </div>
+
+              <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center text-base">
+                🟡
+              </div>
+
             </div>
 
-            <h2 className="text-xl font-semibold text-yellow-700">
-              Pending
-            </h2>
-
-            <p className="text-4xl font-bold text-yellow-700 mt-4">
-              {stats.pending}
-            </p>
           </div>
 
           {/* In Progress */}
-          <div className="bg-blue-100 shadow-lg rounded-xl p-6 text-center">
-            <div className="text-4xl mb-3">
-              🔵
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 hover:shadow-md transition">
+
+            <div className="flex items-center justify-between">
+
+              <div>
+                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
+                  In Progress
+                </p>
+
+                <p className="text-2xl font-bold text-slate-600 mt-1">
+                  {stats.inProgress}
+                </p>
+              </div>
+
+              <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-base">
+                🔵
+              </div>
+
             </div>
 
-            <h2 className="text-xl font-semibold text-blue-700">
-              In Progress
-            </h2>
-
-            <p className="text-4xl font-bold text-blue-700 mt-4">
-              {stats.inProgress}
-            </p>
           </div>
 
           {/* Resolved */}
-          <div className="bg-green-100 shadow-lg rounded-xl p-6 text-center">
-            <div className="text-4xl mb-3">
-              🟢
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 hover:shadow-md transition">
+
+            <div className="flex items-center justify-between">
+
+              <div>
+                <p className="text-slate-500 text-xs font-semibold uppercase tracking-wide">
+                  Resolved
+                </p>
+
+                <p className="text-2xl font-bold text-emerald-600 mt-1">
+                  {stats.resolved}
+                </p>
+              </div>
+
+              <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-base">
+                🟢
+              </div>
+
             </div>
 
-            <h2 className="text-xl font-semibold text-green-700">
-              Resolved
-            </h2>
-
-            <p className="text-4xl font-bold text-green-700 mt-4">
-              {stats.resolved}
-            </p>
           </div>
 
         </div>
 
-        {/* ===============================
+        {/* =====================================================
             RECENT REPORTS
-        =============================== */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
+        ===================================================== */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          {/* Reports Header */}
+          <div className="px-5 py-4 border-b border-slate-200">
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                Recent Reports
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
-              <p className="text-gray-500 mt-1">
-                Your latest road damage reports.
-              </p>
+              <div>
+                <div className="flex items-center gap-2">
+
+                  <span className="w-1.5 h-5 rounded-full bg-amber-400" />
+
+                  <h2 className="text-xl font-bold text-[#4B5157]">
+                    Recent Reports
+                  </h2>
+
+                </div>
+
+                <p className="text-sm text-slate-500 mt-1">
+                  Your latest road damage reports.
+                </p>
+              </div>
+
+              <Link
+                to="/my-reports"
+                className="text-sm text-[#4B5157] hover:text-amber-600 font-semibold transition"
+              >
+                View All Reports →
+              </Link>
+
             </div>
-
-            <Link
-              to="/my-reports"
-              className="text-blue-700 hover:text-blue-900 font-semibold"
-            >
-              View All Reports →
-            </Link>
 
           </div>
 
-          {/* No Reports */}
+          {/* =====================================================
+              NO REPORTS
+          ===================================================== */}
           {recentReports.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-14 px-5">
 
-              <div className="text-5xl mb-4">
+              <div className="w-12 h-12 mx-auto rounded-xl bg-slate-100 flex items-center justify-center text-2xl mb-4">
                 📭
               </div>
 
-              <h3 className="text-xl font-semibold text-gray-700">
+              <h3 className="text-lg font-semibold text-[#4B5157]">
                 No Reports Yet
               </h3>
 
-              <p className="text-gray-500 mt-2 mb-6">
+              <p className="text-sm text-slate-500 mt-1 mb-5">
                 You haven't submitted any road damage reports.
               </p>
 
               <Link
                 to="/report"
-                className="inline-block bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition"
+                className="inline-flex items-center gap-2 bg-[#4B5157] hover:bg-[#5A6168] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm"
               >
+                <span className="text-amber-400">
+                  +
+                </span>
                 Report Road Damage
               </Link>
 
             </div>
           ) : (
-            <div className="space-y-4">
+
+            /* =====================================================
+               REPORT LIST
+            ===================================================== */
+            <div className="divide-y divide-slate-200">
 
               {recentReports.map((report) => (
+
                 <div
                   key={report._id}
-                  className="border rounded-xl p-5 hover:shadow-md transition"
+                  className="p-4 md:p-5 hover:bg-slate-50/70 transition"
                 >
 
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-                    <div>
+                    {/* Report Information */}
+                    <div className="min-w-0">
 
-                      <h3 className="text-lg font-bold text-blue-700">
-                        {report.damageType}
-                      </h3>
+                      <div className="flex items-center gap-2">
 
-                      <p className="text-gray-600 mt-1">
-                        📍 {report.location}
+                        <span className="w-1.5 h-5 rounded-full bg-amber-400 flex-shrink-0" />
+
+                        <h3 className="text-base font-bold text-[#4B5157] truncate">
+                          {report.damageType || "Road Damage"}
+                        </h3>
+
+                      </div>
+
+                      <p className="text-sm text-slate-500 mt-1 truncate">
+                        <span className="text-amber-500">
+                          📍
+                        </span>{" "}
+                        {report.location || "Location unavailable"}
                       </p>
 
-                      <p className="text-sm text-gray-500 mt-2">
-                        {new Date(
-                          report.createdAt
-                        ).toLocaleString()}
+                      <p className="text-xs text-slate-400 mt-2">
+                        {report.createdAt
+                          ? new Date(
+                              report.createdAt
+                            ).toLocaleString()
+                          : "Date unavailable"}
                       </p>
 
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    {/* Status + View */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
 
                       <span
-                        className={`px-4 py-2 rounded-full font-semibold text-sm ${getStatusStyle(
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-xs ${getStatusStyle(
                           report.status
                         )}`}
                       >
+                        <span>
+                          {getStatusIcon(report.status)}
+                        </span>
+
                         {report.status || "Pending"}
                       </span>
 
                       <Link
                         to={`/report/${report._id}`}
-                        className="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-semibold transition"
+                        className="bg-[#4B5157] hover:bg-[#5A6168] text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold transition shadow-sm"
                       >
                         View
                       </Link>
@@ -343,12 +460,31 @@ function Dashboard() {
                   </div>
 
                 </div>
+
               ))}
 
             </div>
+
           )}
 
         </div>
+
+        {/* =====================================================
+            BOTTOM ACTION
+        ===================================================== */}
+        {recentReports.length > 0 && (
+          <div className="flex justify-center mt-5">
+
+            <Link
+              to="/my-reports"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#4B5157] hover:text-amber-600 transition"
+            >
+              View all your reports
+              <span>→</span>
+            </Link>
+
+          </div>
+        )}
 
       </div>
     </section>
