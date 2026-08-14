@@ -89,7 +89,9 @@ function Navbar() {
                 Home
               </Link>
 
-              {/* Normal User */}
+              {/* =================================================
+                  NORMAL USER
+              ================================================= */}
               {user.role !== "admin" && (
                 <>
                   {/* Report Damage */}
@@ -102,6 +104,18 @@ function Navbar() {
                     }`}
                   >
                     Report Damage
+                  </Link>
+
+                  {/* Community Reports */}
+                  <Link
+                    to="/community-reports"
+                    className={`hidden md:block px-2 py-2 text-sm font-semibold transition ${
+                      isActive("/community-reports")
+                        ? "text-[#1F2933]"
+                        : "text-[#66727D] hover:text-[#1F2933]"
+                    }`}
+                  >
+                    Community Reports
                   </Link>
 
                   {/* Profile */}
@@ -118,7 +132,9 @@ function Navbar() {
                 </>
               )}
 
-              {/* Admin */}
+              {/* =================================================
+                  ADMIN
+              ================================================= */}
               {user.role === "admin" && (
                 <Link
                   to="/admin"
@@ -142,7 +158,9 @@ function Navbar() {
             </>
           ) : (
             <>
-              {/* Logged Out - Home */}
+              {/* =================================================
+                  LOGGED OUT - HOME
+              ================================================= */}
               <Link
                 to="/"
                 className={`hidden sm:block px-2 py-2 text-sm font-semibold transition ${

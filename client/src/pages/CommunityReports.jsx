@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function MyReports() {
+function CommunityReports() {
   const navigate = useNavigate();
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // =====================================================
-  // FETCH COMMUNITY REPORTS
-  // Shows reports submitted by all users
+  // FETCH ALL COMMUNITY REPORTS
   // =====================================================
-  const fetchReports = async () => {
+  const fetchCommunityReports = async () => {
     try {
       const token = localStorage.getItem("token");
 
@@ -30,7 +29,11 @@ function MyReports() {
         }
       );
 
-      setReports(response.data.reports || []);
+      if (response.data.success) {
+        setReports(response.data.reports || []);
+      } else {
+        setReports([]);
+      }
     } catch (error) {
       console.error("Error fetching community reports:", error);
 
@@ -45,7 +48,7 @@ function MyReports() {
   };
 
   useEffect(() => {
-    fetchReports();
+    fetchCommunityReports();
   }, []);
 
   // =====================================================
@@ -54,14 +57,14 @@ function MyReports() {
   const getStatusStyle = (status) => {
     switch (status) {
       case "Resolved":
-        return "bg-[#173D2A] text-[#65D391] border-[#276443]";
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
 
       case "In Progress":
-        return "bg-[#443713] text-[#F4C84A] border-[#765F19]";
+        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
 
       case "Pending":
       default:
-        return "bg-[#343B42] text-[#C9CDD1] border-[#4A535B]";
+        return "bg-slate-500/10 text-slate-300 border-slate-500/20";
     }
   };
 
@@ -83,42 +86,15 @@ function MyReports() {
   };
 
   // =====================================================
-  // RESOLUTION NOTES
-  // =====================================================
-  const getResolutionNote = (damageType) => {
-    switch (damageType) {
-      case "Pothole":
-        return "Pothole repaired and the damaged road surface has been restored.";
-
-      case "Road Crack":
-        return "Road cracks have been repaired and the damaged surface has been restored.";
-
-      case "Broken Road":
-        return "The damaged road section has been repaired and restored for safe use.";
-
-      case "Water Logging":
-        return "Water logging issue has been addressed and proper drainage has been restored.";
-
-      case "Street Light Damage":
-        return "The damaged street light has been repaired and normal operation has been restored.";
-
-      default:
-        return "The reported road damage has been inspected and resolved.";
-    }
-  };
-
-  // =====================================================
   // FORMAT DATE
   // =====================================================
   const formatDate = (date) => {
     if (!date) return "N/A";
 
-    return new Date(date).toLocaleString("en-IN", {
-      day: "numeric",
-      month: "numeric",
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
       year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
     });
   };
 
@@ -142,7 +118,6 @@ function MyReports() {
     return (
       <section className="min-h-screen bg-[#252B30] flex items-center justify-center px-4">
         <div className="text-center">
-
           <div className="w-11 h-11 mx-auto border-4 border-[#454D54] border-t-[#E0A900] rounded-full animate-spin" />
 
           <p className="text-[#E2E5E7] text-sm font-semibold mt-4">
@@ -152,7 +127,6 @@ function MyReports() {
           <p className="text-[#89929A] text-xs mt-1">
             Please wait.
           </p>
-
         </div>
       </section>
     );
@@ -163,18 +137,15 @@ function MyReports() {
   // =====================================================
   return (
     <section className="min-h-screen bg-[#252B30] py-10 px-4 md:px-6">
-
       <div className="max-w-6xl mx-auto">
 
         {/* =================================================
             PAGE HEADER
         ================================================= */}
         <div className="mb-7">
-
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
 
             <div>
-
               <div className="inline-flex items-center gap-2 bg-[#343B42] border border-[#4A5259] rounded-full px-3 py-1.5 mb-3">
 
                 <span className="w-2 h-2 rounded-full bg-[#E0A900]" />
@@ -190,9 +161,8 @@ function MyReports() {
               </h1>
 
               <p className="text-[#AEB5BB] mt-2 text-sm">
-                View road damage reports submitted by users across the community.
+                View road damage reports submitted by users in the community.
               </p>
-
             </div>
 
             {/* TOTAL REPORTS */}
@@ -209,7 +179,6 @@ function MyReports() {
             </div>
 
           </div>
-
         </div>
 
         {/* =================================================
@@ -225,19 +194,17 @@ function MyReports() {
             <div className="flex items-center justify-between gap-3">
 
               <div>
-
                 <h2 className="text-lg md:text-xl font-bold text-white">
-                  Road Damage Reports
+                  Road Damage Report Feed
                 </h2>
 
                 <p className="text-[#AEB5BB] mt-1 text-xs md:text-sm">
-                  See complaints submitted by members of the community.
+                  See road issues reported by other members of the community.
                 </p>
-
               </div>
 
               <div className="hidden sm:flex w-10 h-10 rounded-lg bg-[#E0A900] text-[#343B42] items-center justify-center text-lg shadow-sm">
-                📋
+                🌍
               </div>
 
             </div>
@@ -256,31 +223,27 @@ function MyReports() {
               </div>
 
               <h3 className="text-lg font-bold text-white">
-                No reports yet
+                No community reports yet
               </h3>
 
               <p className="text-[#9AA3AB] mt-1 text-sm">
-                No community road damage reports have been submitted yet.
+                No road damage reports have been submitted yet.
               </p>
 
             </div>
 
           ) : (
 
-            <div>
+            <div className="divide-y divide-[#454D54]">
 
-              {/* =================================================
-                  REPORT LIST
-              ================================================= */}
               {reports.map((report, index) => {
 
                 const imageUrl = getImageUrl(report.image);
 
                 return (
-
                   <div
                     key={report._id}
-                    className="px-4 md:px-6 py-6 border-b border-[#454D54] last:border-b-0 bg-[#30373E] hover:bg-[#353D44] transition"
+                    className="p-5 md:p-6 bg-[#30373E] hover:bg-[#353D44] transition"
                   >
 
                     <div className="flex flex-col lg:flex-row gap-5">
@@ -288,7 +251,7 @@ function MyReports() {
                       {/* =================================================
                           IMAGE
                       ================================================= */}
-                      <div className="w-full lg:w-[220px] h-[145px] flex-shrink-0 bg-[#252B30] rounded-lg overflow-hidden border border-[#4A5259]">
+                      <div className="w-full lg:w-[230px] h-[155px] flex-shrink-0 bg-[#252B30] rounded-lg overflow-hidden border border-[#4A5259]">
 
                         {imageUrl ? (
 
@@ -321,33 +284,25 @@ function MyReports() {
                       ================================================= */}
                       <div className="flex-1 min-w-0">
 
-                        {/* =================================================
-                            TOP ROW
-                        ================================================= */}
+                        {/* TOP ROW */}
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
 
                           <div className="min-w-0">
 
-                            <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[10px] font-bold text-[#E0A900] tracking-[0.15em]">
+                              COMMUNITY REPORT{" "}
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
 
-                              <span className="text-[10px] font-bold text-[#E0A900] tracking-[0.15em]">
-                                REPORT {String(index + 1).padStart(2, "0")}
-                              </span>
-
-                            </div>
-
-                            <h3 className="text-xl font-bold text-white">
+                            <h3 className="text-xl font-bold text-white mt-1">
                               {report.damageType || "Road Damage"}
                             </h3>
 
-                            <p className="text-[#AEB5BB] mt-1 text-sm truncate">
-
+                            <p className="text-[#AEB5BB] mt-1 text-sm">
                               <span className="text-[#E0A900]">
                                 📍
                               </span>{" "}
-
                               {report.location || "Location unavailable"}
-
                             </p>
 
                           </div>
@@ -368,31 +323,29 @@ function MyReports() {
                               ${getStatusStyle(report.status)}
                             `}
                           >
-
                             <span>
                               {getStatusIcon(report.status)}
                             </span>
 
                             {report.status || "Pending"}
-
                           </span>
 
                         </div>
 
                         {/* =================================================
-                            DETAILS GRID
+                            REPORT DETAILS
                         ================================================= */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mt-5">
 
                           {/* REPORTER */}
                           <div className="bg-[#252B30] border border-[#424A51] rounded-lg p-3">
 
                             <p className="text-[10px] uppercase tracking-wide font-semibold text-[#7F8991]">
-                              Reporter
+                              Reported By
                             </p>
 
                             <p className="font-semibold text-[#E5E7E9] mt-1 text-xs md:text-sm truncate">
-                              {report.name || "Anonymous User"}
+                              {report.user?.name || "Community User"}
                             </p>
 
                           </div>
@@ -414,33 +367,11 @@ function MyReports() {
                           <div className="bg-[#252B30] border border-[#424A51] rounded-lg p-3">
 
                             <p className="text-[10px] uppercase tracking-wide font-semibold text-[#7F8991]">
-                              Damage Type
+                              Issue Type
                             </p>
 
                             <p className="font-semibold text-[#E5E7E9] mt-1 text-xs md:text-sm truncate">
-                              {report.damageType || "N/A"}
-                            </p>
-
-                          </div>
-
-                          {/* COORDINATES */}
-                          <div className="bg-[#252B30] border border-[#424A51] rounded-lg p-3">
-
-                            <p className="text-[10px] uppercase tracking-wide font-semibold text-[#7F8991]">
-                              Coordinates
-                            </p>
-
-                            <p className="font-semibold text-[#E5E7E9] mt-1 text-xs md:text-sm break-words">
-
-                              {report.latitude != null &&
-                              report.longitude != null
-                                ? `${Number(report.latitude).toFixed(
-                                    5
-                                  )}, ${Number(report.longitude).toFixed(
-                                    5
-                                  )}`
-                                : "N/A"}
-
+                              {report.damageType || "Road Damage"}
                             </p>
 
                           </div>
@@ -467,7 +398,6 @@ function MyReports() {
                             RESOLUTION NOTE
                         ================================================= */}
                         {report.status === "Resolved" && (
-
                           <div className="mt-5 bg-[#183D2B] border border-[#276443] rounded-lg px-4 py-3">
 
                             <div className="flex items-start gap-3">
@@ -484,9 +414,7 @@ function MyReports() {
 
                                 <p className="text-[#9BE0B3] mt-1 text-sm leading-relaxed">
                                   {report.resolutionNote ||
-                                    getResolutionNote(
-                                      report.damageType
-                                    )}
+                                    "This report has been resolved by the administration team."}
                                 </p>
 
                               </div>
@@ -494,7 +422,6 @@ function MyReports() {
                             </div>
 
                           </div>
-
                         )}
 
                         {/* =================================================
@@ -503,13 +430,10 @@ function MyReports() {
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-5 pt-4 border-t border-[#454D54]">
 
                           <p className="text-[11px] text-[#747E87] break-all">
-
                             Report ID:{" "}
-
                             <span className="font-medium text-[#9AA3AB]">
                               {report._id}
                             </span>
-
                           </p>
 
                           <button
@@ -529,12 +453,10 @@ function MyReports() {
                     </div>
 
                   </div>
-
                 );
               })}
 
             </div>
-
           )}
 
         </div>
@@ -544,18 +466,17 @@ function MyReports() {
         ================================================= */}
         <div className="flex items-center justify-center gap-2 mt-5 text-[11px] text-[#737D85]">
 
-          <span>🛡️</span>
+          <span>🌍</span>
 
           <span>
-            Community reports are visible to registered users.
+            Community reports help everyone stay informed about road conditions.
           </span>
 
         </div>
 
       </div>
-
     </section>
   );
 }
 
-export default MyReports;
+export default CommunityReports;

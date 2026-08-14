@@ -37,7 +37,6 @@ router.post(
 
         status: "Pending",
 
-        // No resolution note when a report is first created
         resolutionNote: "",
       });
 
@@ -88,9 +87,59 @@ router.get("/my", protect, async (req, res) => {
 });
 
 // =====================================================
+// GET COMMUNITY REPORTS
+// Logged-in users only
+//
+// Every logged-in user can see reports submitted by
+// other users.
+//
+// PRIVATE INFORMATION NOT EXPOSED:
+// - Phone number
+// - Email
+// - Password
+//
+// SAFE INFORMATION:
+// - Reporter name
+// - Damage type
+// - Location
+// - Latitude
+// - Longitude
+// - Description
+// - Image
+// - Status
+// - Resolution note
+// - Created date
+// - Updated date
+// =====================================================
+router.get("/community", protect, async (req, res) => {
+  try {
+    const reports = await Report.find()
+      .select(
+        "user name location latitude longitude damageType description image status resolutionNote createdAt updatedAt"
+      )
+      .populate("user", "name")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      reports,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching community reports:", error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+// =====================================================
 // GET DASHBOARD STATISTICS
 // ADMIN ONLY
-// IMPORTANT: Keep this BEFORE /:id
+//
+// IMPORTANT:
+// Keep this BEFORE /:id
 // =====================================================
 router.get(
   "/stats",
@@ -133,7 +182,8 @@ router.get(
 // =====================================================
 // GET REPORTS FOR MAP
 // PUBLIC
-// Keep public because the Home page shows the map
+//
+// Used by the Home page map.
 // =====================================================
 router.get("/map", async (req, res) => {
   try {
@@ -163,8 +213,6 @@ router.get("/map", async (req, res) => {
 // Used by the homepage Recent Activity section.
 //
 // Only safe information is returned.
-// No phone number, user details, description,
-// image or coordinates are exposed here.
 // =====================================================
 router.get("/recent-activity", async (req, res) => {
   try {
@@ -182,19 +230,19 @@ router.get("/recent-activity", async (req, res) => {
       let type = "new";
       let title = "New road damage reported";
 
-      // Resolved report
+      // Resolved
       if (report.status === "Resolved") {
         type = "resolved";
         title = "Report resolved";
       }
 
-      // Report being worked on
+      // In Progress
       else if (report.status === "In Progress") {
         type = "progress";
         title = "Report moved to In Progress";
       }
 
-      // Newly submitted / pending report
+      // Pending / New
       else {
         type = "new";
         title = "New road damage reported";
@@ -229,7 +277,9 @@ router.get("/recent-activity", async (req, res) => {
 // =====================================================
 // GET ALL REPORTS
 // ADMIN ONLY
-// IMPORTANT: Keep this BEFORE /:id
+//
+// IMPORTANT:
+// Keep this BEFORE /:id
 // =====================================================
 router.get(
   "/",
@@ -262,6 +312,14 @@ router.get(
 //
 // Admin → can view any report
 // User  → can view only their own report
+//
+// IMPORTANT:
+// CommunityReports currently displays the reports,
+// but this endpoint still prevents a normal user from
+// opening another user's individual report.
+//
+// We will modify this in a later step if you want users
+// to open full details of community reports.
 // =====================================================
 router.get("/:id", protect, async (req, res) => {
   try {
@@ -274,7 +332,9 @@ router.get("/:id", protect, async (req, res) => {
       });
     }
 
-    // Admin can view any report
+    // =================================================
+    // ADMIN CAN VIEW ANY REPORT
+    // =================================================
     if (req.user.role === "admin") {
       return res.json({
         success: true,
@@ -282,7 +342,9 @@ router.get("/:id", protect, async (req, res) => {
       });
     }
 
-    // Normal user can only view their own report
+    // =================================================
+    // NORMAL USER CAN ONLY VIEW THEIR OWN REPORT
+    // =================================================
     if (report.user.toString() !== req.user.id.toString()) {
       return res.status(403).json({
         success: false,
@@ -316,14 +378,18 @@ router.put(
     try {
       const { status, resolutionNote } = req.body;
 
-      // Allowed statuses
+      // =================================================
+      // ALLOWED STATUSES
+      // =================================================
       const allowedStatuses = [
         "Pending",
         "In Progress",
         "Resolved",
       ];
 
-      // Validate status
+      // =================================================
+      // VALIDATE STATUS
+      // =================================================
       if (!allowedStatuses.includes(status)) {
         return res.status(400).json({
           success: false,
@@ -352,7 +418,6 @@ router.put(
         status,
       };
 
-      // Save resolution note when provided
       if (resolutionNote !== undefined) {
         updateData.resolutionNote = resolutionNote.trim();
       }
@@ -370,7 +435,9 @@ router.put(
           }
         );
 
-      // Report not found
+      // =================================================
+      // REPORT NOT FOUND
+      // =================================================
       if (!updatedReport) {
         return res.status(404).json({
           success: false,
@@ -379,7 +446,7 @@ router.put(
       }
 
       // =================================================
-      // SUCCESS RESPONSE
+      // SUCCESS
       // =================================================
       res.json({
         success: true,

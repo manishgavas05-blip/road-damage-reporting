@@ -7,6 +7,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ReportDamage from "../pages/ReportDamage";
 import MyReports from "../pages/MyReports";
+import CommunityReports from "../pages/CommunityReports";
 import Dashboard from "../pages/Dashboard";
 import AdminDashboard from "../pages/AdminDashboard";
 import Profile from "../pages/Profile";
@@ -21,19 +22,30 @@ function AppRoutes() {
     <BrowserRouter>
       <Routes>
 
-        {/* Main Layout */}
+        {/* =====================================================
+            MAIN LAYOUT
+        ===================================================== */}
         <Route element={<MainLayout />}>
 
-          {/* Home Page */}
+          {/* =====================================================
+              PUBLIC ROUTES
+          ===================================================== */}
+
+          {/* Home */}
           <Route path="/" element={<Home />} />
 
-          {/* Login Page */}
+          {/* Login */}
           <Route path="/login" element={<Login />} />
 
-          {/* Register Page */}
+          {/* Register */}
           <Route path="/register" element={<Register />} />
 
-          {/* Protected User Routes */}
+
+          {/* =====================================================
+              PROTECTED USER ROUTES
+          ===================================================== */}
+
+          {/* Report Damage */}
           <Route
             path="/report"
             element={
@@ -43,6 +55,7 @@ function AppRoutes() {
             }
           />
 
+          {/* My Reports */}
           <Route
             path="/my-reports"
             element={
@@ -52,6 +65,20 @@ function AppRoutes() {
             }
           />
 
+          {/* Community Reports
+              Every logged-in user can see reports
+              submitted by other users.
+          */}
+          <Route
+            path="/community-reports"
+            element={
+              <ProtectedRoute>
+                <CommunityReports />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* User Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -61,6 +88,7 @@ function AppRoutes() {
             }
           />
 
+          {/* User Profile */}
           <Route
             path="/profile"
             element={
@@ -70,6 +98,7 @@ function AppRoutes() {
             }
           />
 
+          {/* Report Details */}
           <Route
             path="/report/:id"
             element={
@@ -79,7 +108,11 @@ function AppRoutes() {
             }
           />
 
-          {/* Admin Route */}
+
+          {/* =====================================================
+              ADMIN ROUTE
+          ===================================================== */}
+
           <Route
             path="/admin"
             element={
@@ -89,11 +122,14 @@ function AppRoutes() {
             }
           />
 
-          {/* 404 */}
+
+          {/* =====================================================
+              404
+          ===================================================== */}
+
           <Route path="*" element={<NotFound />} />
 
         </Route>
-
       </Routes>
     </BrowserRouter>
   );

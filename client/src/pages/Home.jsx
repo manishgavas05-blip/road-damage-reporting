@@ -14,13 +14,14 @@ function Home() {
   const [loadingActivities, setLoadingActivities] = useState(true);
 
   // =====================================================
-  // FETCH RECENT ACTIVITY
+  // FETCH COMMUNITY REPORTS
+  // This will show reports submitted by ALL users.
   // =====================================================
   useEffect(() => {
-    const fetchRecentActivity = async () => {
+    const fetchCommunityReports = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/reports/recent-activity",
+          "http://localhost:5000/api/reports/all",
           {
             headers: token
               ? {
@@ -33,19 +34,23 @@ function Home() {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          setActivities(data.activities || []);
+          setActivities(data.reports || []);
         } else {
           setActivities([]);
+          console.error(
+            "Failed to fetch community reports:",
+            data.message || "Unknown error"
+          );
         }
       } catch (error) {
-        console.error("Error fetching recent activity:", error);
+        console.error("Error fetching community reports:", error);
         setActivities([]);
       } finally {
         setLoadingActivities(false);
       }
     };
 
-    fetchRecentActivity();
+    fetchCommunityReports();
   }, [token]);
 
   // =====================================================
@@ -64,15 +69,15 @@ function Home() {
   // =====================================================
   // ACTIVITY ICON
   // =====================================================
-  const getActivityIcon = (type) => {
-    switch (type) {
-      case "resolved":
+  const getActivityIcon = (status) => {
+    switch (status) {
+      case "Resolved":
         return "✓";
 
-      case "in-progress":
+      case "In Progress":
         return "↻";
 
-      case "pending":
+      case "Pending":
         return "⏳";
 
       default:
@@ -83,15 +88,15 @@ function Home() {
   // =====================================================
   // ACTIVITY ICON STYLE
   // =====================================================
-  const getActivityIconStyle = (type) => {
-    switch (type) {
-      case "resolved":
+  const getActivityIconStyle = (status) => {
+    switch (status) {
+      case "Resolved":
         return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
 
-      case "in-progress":
+      case "In Progress":
         return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
 
-      case "pending":
+      case "Pending":
         return "bg-slate-500/10 text-slate-300 border border-slate-500/20";
 
       default:
@@ -118,6 +123,9 @@ function Home() {
     }
   };
 
+  // =====================================================
+  // PAGE
+  // =====================================================
   return (
     <div className="min-h-screen bg-[#1F2933] text-white">
 
@@ -206,26 +214,28 @@ function Home() {
       </section>
 
       {/* =================================================
-          RECENT ACTIVITY
+          COMMUNITY REPORTS
       ================================================= */}
       <section className="bg-[#252B31] border-y border-slate-700 py-10">
 
         <div className="max-w-5xl mx-auto px-4">
 
-          {/* Section Header */}
+          {/* =================================================
+              SECTION HEADER
+          ================================================= */}
           <div className="text-center mb-6">
 
             <p className="text-[#F4B400] font-bold uppercase tracking-[0.18em] text-xs">
-              System Updates
+              Community Updates
             </p>
 
             <h2 className="text-3xl font-bold text-white mt-1.5">
-              Recent Activity
+              Community Reports
             </h2>
 
             <p className="text-slate-400 text-sm mt-2 max-w-xl mx-auto">
-              Stay updated with the latest changes and progress on reported
-              road damage.
+              See road damage reports submitted by users across the
+              community and stay updated on their status.
             </p>
 
           </div>
@@ -242,7 +252,7 @@ function Home() {
                 <div className="w-4 h-4 border-2 border-slate-600 border-t-[#F4B400] rounded-full animate-spin"></div>
 
                 <span>
-                  Loading recent activity...
+                  Loading community reports...
                 </span>
 
               </div>
@@ -252,7 +262,7 @@ function Home() {
           ) : activities.length === 0 ? (
 
             /* =================================================
-                NO ACTIVITY
+                NO REPORTS
             ================================================= */
             <div className="bg-[#1F2933] rounded-xl border border-slate-700 p-7 text-center shadow-sm">
 
@@ -261,11 +271,11 @@ function Home() {
               </div>
 
               <h3 className="text-base font-semibold text-white">
-                No recent activity
+                No community reports yet
               </h3>
 
               <p className="text-sm text-slate-400 mt-1">
-                There are no recent report updates to display.
+                There are no road damage reports to display.
               </p>
 
             </div>
@@ -273,36 +283,42 @@ function Home() {
           ) : (
 
             /* =================================================
-                ACTIVITY LIST
+                COMMUNITY REPORT LIST
             ================================================= */
             <div className="max-w-4xl mx-auto space-y-3">
 
-              {activities.slice(0, 5).map((activity) => (
+              {activities.slice(0, 5).map((activity, index) => (
 
                 <div
-                  key={activity.id}
-                  className="bg-[#1F2933] border border-slate-700 rounded-xl px-4 py-3.5 shadow-sm hover:border-slate-500 transition duration-200"
+                  key={activity._id || activity.id || index}
+                  className="bg-[#1F2933] border border-slate-700 rounded-xl px-4 py-4 shadow-sm hover:border-slate-500 transition duration-200"
                 >
 
                   <div className="flex items-center gap-3.5">
 
-                    {/* Activity Icon */}
+                    {/* =================================================
+                        STATUS ICON
+                    ================================================= */}
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-bold flex-shrink-0 ${getActivityIconStyle(
-                        activity.type
+                        activity.status
                       )}`}
                     >
-                      {getActivityIcon(activity.type)}
+                      {getActivityIcon(activity.status)}
                     </div>
 
-                    {/* Activity Content */}
+                    {/* =================================================
+                        REPORT CONTENT
+                    ================================================= */}
                     <div className="flex-1 min-w-0">
 
                       {/* Title + Status */}
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
 
                         <h3 className="font-semibold text-white text-base">
-                          {activity.title || "Report update"}
+                          {activity.title ||
+                            activity.damageType ||
+                            "Road Damage Report"}
                         </h3>
 
                         {activity.status && (
@@ -317,9 +333,12 @@ function Home() {
 
                       </div>
 
-                      {/* Report Information */}
+                      {/* =================================================
+                          REPORT INFORMATION
+                      ================================================= */}
                       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
 
+                        {/* Damage Type */}
                         {activity.damageType && (
                           <span className="flex items-center gap-1">
                             <span>🛣️</span>
@@ -327,6 +346,7 @@ function Home() {
                           </span>
                         )}
 
+                        {/* Location */}
                         {activity.location && (
                           <span className="flex items-center gap-1">
                             <span>📍</span>
@@ -334,6 +354,7 @@ function Home() {
                           </span>
                         )}
 
+                        {/* Date */}
                         <span className="flex items-center gap-1">
                           <span>🕒</span>
 
@@ -359,7 +380,7 @@ function Home() {
           )}
 
           {/* =================================================
-              VIEW REPORTS BUTTON
+              VIEW ALL COMMUNITY REPORTS
           ================================================= */}
           {activities.length > 0 && (
 
