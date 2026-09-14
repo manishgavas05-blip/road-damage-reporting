@@ -12,21 +12,109 @@ function Login() {
   });
 
   const [loginType, setLoginType] = useState("user");
+  const [emailError, setEmailError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  // =====================================================
+  // EMAIL VALIDATION
+  // =====================================================
+  const validateEmail = (email) => {
+    const value = email.trim();
+
+    if (!value) {
+      return "Email is required.";
+    }
+
+    if (/\s/.test(value)) {
+      return "Invalid email: email cannot contain spaces.";
+    }
+
+    if (!value.includes("@")) {
+      return "Invalid email: missing @ symbol.";
+    }
+
+    const parts = value.split("@");
+
+    if (parts.length !== 2) {
+      return "Invalid email: email must contain only one @ symbol.";
+    }
+
+    const username = parts[0];
+    const domain = parts[1];
+
+    if (!username) {
+      return "Invalid email: email name is missing before @.";
+    }
+
+    if (!domain) {
+      return "Invalid email: domain name is missing after @.";
+    }
+
+    if (!domain.includes(".")) {
+      return "Invalid email: domain must contain a valid extension, such as .com.";
+    }
+
+    if (domain.startsWith(".") || domain.endsWith(".")) {
+      return "Invalid email: domain format is incorrect.";
+    }
+
+    if (domain.includes("..")) {
+      return "Invalid email: domain cannot contain consecutive dots.";
+    }
+
+    const emailRegex =
+      /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/;
+
+    if (!emailRegex.test(value)) {
+      return "Invalid email: please enter a valid email address.";
+    }
+
+    return "";
   };
 
+  // =====================================================
+  // HANDLE INPUT CHANGE
+  // =====================================================
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (name === "email") {
+      setEmailError(validateEmail(value));
+    }
+  };
+
+  // =====================================================
+  // HANDLE LOGIN
+  // =====================================================
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate email
+    const emailValidationError = validateEmail(formData.email);
+
+    if (emailValidationError) {
+      setEmailError(emailValidationError);
+      return;
+    }
+
+    // Validate password
+    if (!formData.password.trim()) {
+      alert("Password is required.");
+      return;
+    }
 
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
-        formData
+        {
+          email: formData.email.trim().toLowerCase(),
+          password: formData.password,
+        }
       );
 
       const user = response.data.user;
@@ -123,7 +211,9 @@ function Login() {
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* Email */}
+          {/* =====================================================
+              EMAIL
+          ====================================================== */}
           <div>
             <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Email
@@ -140,32 +230,59 @@ function Login() {
                 placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                className={`w-full border ${
+                  emailError
+                    ? "border-red-400 focus:ring-red-300 focus:border-red-400"
+                    : "border-slate-300 focus:ring-amber-400 focus:border-amber-400"
+                } bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 transition`}
                 required
               />
             </div>
+
+            {/* Email Error */}
+            {emailError && (
+              <p className="mt-1.5 text-xs font-medium text-red-600">
+                ⚠ {emailError}
+              </p>
+            )}
           </div>
 
-          {/* Password */}
+          {/* =====================================================
+              PASSWORD
+          ====================================================== */}
           <div>
             <label className="block mb-1.5 font-semibold text-slate-700 text-sm">
               Password
             </label>
 
             <div className="relative">
+              {/* Lock Icon */}
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                 🔒
               </span>
 
+              {/* Password Input */}
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-3 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
+                className="w-full border border-slate-300 bg-white rounded-lg py-3 pl-10 pr-12 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400 transition"
                 required
               />
+
+              {/* Show / Hide Password */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition"
+                aria-label={
+                  showPassword ? "Hide password" : "Show password"
+                }
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
             </div>
           </div>
 
